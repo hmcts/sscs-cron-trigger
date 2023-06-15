@@ -19,49 +19,60 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
-public class AuthorisationServiceTest {
+class AuthorisationServiceTest {
 
     private static final String USERNAME = "system.update";
-
     private static final String PASSWORD = "password";
+    public static final String ACCESS_TOKEN_1 = "ACCESS-TOKEN-1";
+    public static final String ACCESS_TOKEN_2 = "ACCESS-TOKEN-2";
+    public static final String EXPIRES_IN = "250";
+    public static final String ID_TOKEN = "id_token";
+    public static final String REFRESH_TOKEN = "refresh_token";
+    public static final String SCOPE = "scope";
+    public static final String TOKEN_TYPE = "token_type";
+    public static final String BEARER_ACCESS_TOKEN_1 = "Bearer " + ACCESS_TOKEN_1;
+    public static final String BEARER_ACCESS_TOKEN_2 = "Bearer " + ACCESS_TOKEN_2;
+    public static final String SYSTEM_USER_UID = "SYSTEM-USER-UID";
+    public static final String SERVICE_TOKEN = "SERVICE-TOKEN";
 
     @Mock
     private IdamApi idamApi;
     @Mock
     private OAuth2Configuration oauth2Configuration;
     private IdamClient idamClient;
-    private AuthTokenGenerator s2sTokenGenerator;
-
     private AuthorisationService authorisationService;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
         idamClient = Mockito.spy(new IdamClient(idamApi, oauth2Configuration));
-        s2sTokenGenerator = () -> "SERVICE-TOKEN";
+        AuthTokenGenerator s2sTokenGenerator = () -> SERVICE_TOKEN;
         authorisationService = new AuthorisationService(USERNAME, PASSWORD, idamClient, s2sTokenGenerator);
     }
 
     @Test
-    void multipleAccessTokenRequests_returnCachedToken() {
+    void returnCachedTokenWhenAvailableAndValid() {
         when(idamClient.getAccessTokenResponse(eq(USERNAME), eq(PASSWORD))).thenReturn(
-            new TokenResponse("ACCESS-TOKEN","3600","id_token","refresh_token","scope", "token_type"));
+            new TokenResponse(ACCESS_TOKEN_1, "3600", ID_TOKEN, REFRESH_TOKEN, SCOPE, TOKEN_TYPE));
 
-        assertEquals("Bearer ACCESS-TOKEN", authorisationService.getSystemUserAccessToken());
-        assertEquals("Bearer ACCESS-TOKEN", authorisationService.getSystemUserAccessToken());
+        assertEquals(BEARER_ACCESS_TOKEN_1, authorisationService.getSystemUserAccessToken(),
+                     "Should return new access token");
+        assertEquals(BEARER_ACCESS_TOKEN_1, authorisationService.getSystemUserAccessToken(),
+                     "Should return cached access token");
 
         verify(idamClient, times(1)).getAccessTokenResponse(anyString(), anyString());
     }
 
     @Test
-    void multipleAccessTokenRequests_cachedTokenExpired_returnNewToken() {
+    void returnNewTokenWhenCachedTokenHasExpired() {
         when(idamClient.getAccessTokenResponse(eq(USERNAME), eq(PASSWORD)))
-            .thenReturn(new TokenResponse("ACCESS-TOKEN-1","250","id_token","refresh_token","scope", "token_type"))
-            .thenReturn(new TokenResponse("ACCESS-TOKEN-2","250","id_token","refresh_token","scope", "token_type"));
+            .thenReturn(new TokenResponse(ACCESS_TOKEN_1, EXPIRES_IN, ID_TOKEN, REFRESH_TOKEN, SCOPE, TOKEN_TYPE))
+            .thenReturn(new TokenResponse(ACCESS_TOKEN_2, EXPIRES_IN, ID_TOKEN, REFRESH_TOKEN, SCOPE, TOKEN_TYPE));
 
-        assertEquals("Bearer ACCESS-TOKEN-1", authorisationService.getSystemUserAccessToken());
-        assertEquals("Bearer ACCESS-TOKEN-2", authorisationService.getSystemUserAccessToken());
+        assertEquals(BEARER_ACCESS_TOKEN_1, authorisationService.getSystemUserAccessToken(),
+                     "Should return new access token");
+        assertEquals(BEARER_ACCESS_TOKEN_2, authorisationService.getSystemUserAccessToken(),
+                     "Should return new access token");
 
         verify(idamClient, times(2)).getAccessTokenResponse(anyString(), anyString());
     }
@@ -69,16 +80,16 @@ public class AuthorisationServiceTest {
     @Test
     void returnsSystemUserId() {
         when(idamClient.getAccessTokenResponse(eq(USERNAME), eq(PASSWORD))).thenReturn(
-            new TokenResponse("ACCESS-TOKEN","3600","id_token","refresh_token","scope", "token_type"));
+            new TokenResponse(ACCESS_TOKEN_1, "3600", ID_TOKEN, REFRESH_TOKEN, SCOPE, TOKEN_TYPE));
 
-        when(idamClient.getUserInfo(eq("Bearer ACCESS-TOKEN"))).thenReturn(
-            UserInfo.builder().uid("SYSTEM-USER-UID").build());
+        when(idamClient.getUserInfo(eq(BEARER_ACCESS_TOKEN_1))).thenReturn(
+            UserInfo.builder().uid(SYSTEM_USER_UID).build());
 
-        assertEquals("SYSTEM-USER-UID", authorisationService.getSystemUserId());
+        assertEquals(SYSTEM_USER_UID, authorisationService.getSystemUserId(), "Should return correct user uid");
     }
 
     @Test
     void returnsServiceToken() {
-        assertEquals("SERVICE-TOKEN", authorisationService.getServiceToken());
+        assertEquals(SERVICE_TOKEN, authorisationService.getServiceToken(), "Should return service token");
     }
 }

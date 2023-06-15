@@ -28,6 +28,7 @@ public class DateTrigger implements Trigger {
         this.eventName = eventName;
     }
 
+    @Override
     public String query() {
         return new JSONObject()
             .put("query", new JSONObject()

@@ -47,7 +47,7 @@ class DirectionDueTodayTriggerTest {
     }
 
     @Test
-    void directionDueTodayAndEventNotPreviouslyTriggered_isValidShouldReturnTrue() {
+    void isValidShouldReturnTrueWhenEventNotPreviouslyTriggered() {
         List<CaseEventDetail> events = Arrays.asList(
             CaseEventDetail.builder().id("someEvent").createdDate(LocalDateTime.now()).build()
         );
@@ -56,7 +56,7 @@ class DirectionDueTodayTriggerTest {
     }
 
     @Test
-    void directionDueTodayAndEventWasPreviouslyTriggered_shouldReturnFalse() {
+    void isValidShouldReturnFalseWhenEventAlreadyTriggered() {
         List<CaseEventDetail> events = Arrays.asList(
             CaseEventDetail.builder().id("someEvent").createdDate(LocalDateTime.now()).build(),
             CaseEventDetail.builder().id("directionDueToday").createdDate(LocalDateTime.now()).build()

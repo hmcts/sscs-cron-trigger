@@ -35,7 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class NightlyRunnerTest {
+class NightlyRunnerTest {
 
     private static final String EVENT_TOKEN = "EVENT-TOKEN";
     private static final String ACCESS_TOKEN = "ACCESS-TOKEN";
@@ -46,7 +46,7 @@ public class NightlyRunnerTest {
     private static final String TEST_EVENT_ID = "testEvent";
     private static final String TEST_CASE_DATE_PROPERTY = "testDate";
 
-    private static final long CASE_1_ID = 1111111111111111L;
+    private static final long CASE_1_ID = 1_111_111_111_111_111L;
 
     private static final CaseDetails CASE_1_DETAILS = CaseDetails.builder().id(CASE_1_ID).build();
 
@@ -66,13 +66,13 @@ public class NightlyRunnerTest {
     @Spy
     private CaseEventsApi caseEventsApi;
     @Spy
-    private List<Trigger> triggers = new ArrayList<>();
+    private final List<Trigger> triggers = new ArrayList<>();
 
     @InjectMocks
     private NightlyRunner runner;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
 
         triggers.add(new DateTrigger(LocalDate.now(), TEST_CASE_DATE_PROPERTY, LocalDate.now(), TEST_EVENT_ID));
@@ -92,7 +92,7 @@ public class NightlyRunnerTest {
     }
 
     @Test
-    void hearingToday_shouldTriggerHearingTodayEvent() {
+    void shouldTriggerHearingTodayEvent() {
         /* Setup */
         doReturn(Arrays.asList(SOME_EVENT))
             .when(caseEventsApi).findEventDetailsForCase(
@@ -124,7 +124,7 @@ public class NightlyRunnerTest {
     }
 
     @Test
-    void hearingTodayEventAlreadyTriggered_shouldNotTriggerEvent() {
+    void hearingTodayEventAlreadyTriggered() {
         /* Setup */
         doReturn(Arrays.asList(SOME_EVENT, HEARING_TODAY_EVENT))
             .when(caseEventsApi).findEventDetailsForCase(
@@ -153,7 +153,7 @@ public class NightlyRunnerTest {
     }
 
     @Test
-    void ccdException_shouldThrowException() {
+    void shouldThrowExceptions() {
         when(ccdApi.searchCases(eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(CASE_TYPE), any()))
             .thenThrow(new RuntimeException("CCD Exception"));
 

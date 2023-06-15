@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HearingTodayTriggerTest {
+class HearingTodayTriggerTest {
 
     private Trigger trigger;
 
