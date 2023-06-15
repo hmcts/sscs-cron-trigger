@@ -1,13 +1,9 @@
 #!groovy
 
-properties([
-  pipelineTriggers([cron('H 07 * * 1-5')])
-])
-
 @Library("Infrastructure")
 
 def type = "java"
 def product = "sscs"
 def component = "cron-event-trigger"
 
-withNightlyPipeline(type, product, component) {}
+withPipeline(type, product, component) {}
