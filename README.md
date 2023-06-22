@@ -1,25 +1,19 @@
-# Spring Boot application template
+# SSCS Nightly CCD Event Trigger
 
-## Purpose
+A nightly application that searches for cases matching a given criteria and triggers a CCD event. These events are then used to initiate work allocation tasks. The application is scheduled to run every night and terminates when completed.
 
-The purpose of this template is to speed up the creation of new Spring applications within HMCTS
-and help keep the same standards across multiple teams. If you need to create a new app, you can
-simply use this one as a starting point and build on top of it.
+The events:
 
-## What's inside
+  * directionDueToday - triggered on cases where the directionDueDate is today.
+  * prepareForHearing - triggered on cases where the next hearing is in 14 days
+  * hearingToday - triggered on cases where there is a hearing today.
 
-The template is a working application with a minimal setup. It contains:
- * application skeleton
- * setup script to prepare project
- * common plugins and libraries
- * docker setup
- * automatically publishes API documentation to [hmcts/cnp-api-docs](https://github.com/hmcts/cnp-api-docs)
- * code quality tools already set up
- * MIT license and contribution information
- * Helm chart using chart-java.
+The application can be run multiple times but will only trigger the event once. The case events are searched to check if the event has already been triggered.
 
-The application exposes health endpoint (http://localhost:4550/health) and metrics endpoint
-(http://localhost:4550/metrics).
+The application uses the current date as today but the date can be specified using:
+~~~
+./gradlew bootRun --trigger.date=yyyy-MM-dd
+~~~
 
 ## Plugins
 
@@ -83,10 +77,6 @@ The template contains the following plugins:
     ```bash
       ./gradlew dependencyUpdates -Drevision=release
     ```
-
-## Setup
-
-Located in `./bin/init.sh`. Simply run and follow the explanation how to execute it.
 
 ## Building and deploying the application
 
