@@ -131,8 +131,8 @@ project.tasks['check'].dependsOn integration
 
 sonarqube {
   properties {
-    property "sonar.projectName", "Reform :: spring-boot-template"
-    property "sonar.projectKey", "uk.gov.hmcts.reform:spring-boot-template"
+    property "sonar.projectName", "SSCS Cron Trigger"
+    property "sonar.projectKey", "sscs-cron-trigger"
   }
 }
 

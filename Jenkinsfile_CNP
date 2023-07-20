@@ -6,4 +6,7 @@ def type = "java"
 def product = "sscs"
 def component = "cron-trigger"
 
-withPipeline(type, product, component) {}
+withPipeline(type, product, component) {
+  enableSlackNotifications('#sscs-tech')
+  nonServiceApp()
+}
