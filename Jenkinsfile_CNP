@@ -3,7 +3,10 @@
 @Library("Infrastructure")
 
 def type = "java"
-def product = "rpe"
-def component = "demo"
+def product = "sscs"
+def component = "cron-trigger"
 
-withPipeline(type, product, component) {}
+withPipeline(type, product, component) {
+  enableSlackNotifications('#sscs-tech')
+  nonServiceApp()
+}
