@@ -4,6 +4,6 @@
 
 def type = "java"
 def product = "sscs"
-def component = "cron-event-trigger"
+def component = "cron-trigger"
 
 withPipeline(type, product, component) {}
