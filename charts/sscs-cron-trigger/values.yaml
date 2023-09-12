@@ -10,3 +10,6 @@ java:
 #        - name: AppInsightsInstrumentationKey
 #          alias: azure.application-insights.instrumentation-key
   environment:
+  global:
+    jobKind: CronJob
+  schedule: "0 1 * * *"
