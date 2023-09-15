@@ -29,6 +29,10 @@ idam:
     url: ${IDAM_S2S_AUTH:http://localhost:4502}
     totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
     microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
+  client:
+    id: ${IDAM_OAUTH2_CLIENT_ID:sscs}
+    secret: ${IDAM_OAUTH2_CLIENT_SECRET}
+    redirect_uri: ${IDAM_OAUTH2_REDIRECT_URL}
 
 sscs:
   users:
