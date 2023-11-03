@@ -30,5 +30,19 @@
     <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-embed-.*@.*$</packageUrl>
     <cve>CVE-2023-41080</cve>
   </suppress>
+  <suppress until="2023-11-01">
+   <notes><![CDATA[
+   file name: commons-fileupload-1.4.jar
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/commons\-fileupload/commons\-fileupload@.*$</packageUrl>
+   <cve>CVE-2023-24998</cve>
+</suppress>
+<suppress until="2023-11-01">
+   <notes><![CDATA[
+   file name: json-20230227.jar
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+   <cve>CVE-2023-5072</cve>
+</suppress>
   <!--End of temporary suppression section -->
 </suppressions>
