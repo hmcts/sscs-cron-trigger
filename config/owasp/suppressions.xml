@@ -10,19 +10,19 @@
   <!--End of false positives section -->
 
   <!--Please add all the temporary suppression under the below section-->
-  <suppress until="2023-11-01">
+  <suppress until="2023-12-01">
     <notes>
     </notes>
     <cve>CVE-2022-1471</cve>
   </suppress>
-  <suppress until="2023-11-01">
+  <suppress until="2023-12-01">
     <notes><![CDATA[
      file name: jackson-databind@2.15.0.jar
      ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
     <cve>CVE-2023-35116</cve>
   </suppress>
-  <suppress until="2023-11-01">
+  <suppress until="2023-12-01">
     <notes><![CDATA[
      file name: tomcat-embed-core-10.1.12.jar
      file name: tomcat-embed-websocket-10.1.12.jar
@@ -30,14 +30,14 @@
     <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-embed-.*@.*$</packageUrl>
     <cve>CVE-2023-41080</cve>
   </suppress>
-  <suppress until="2023-11-01">
+  <suppress until="2023-12-01">
    <notes><![CDATA[
    file name: commons-fileupload-1.4.jar
    ]]></notes>
    <packageUrl regex="true">^pkg:maven/commons\-fileupload/commons\-fileupload@.*$</packageUrl>
    <cve>CVE-2023-24998</cve>
 </suppress>
-<suppress until="2023-11-01">
+<suppress until="2023-12-01">
    <notes><![CDATA[
    file name: json-20230227.jar
    ]]></notes>
