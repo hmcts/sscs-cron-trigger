@@ -1,9 +1,9 @@
  # renovate: datasource=github-releases depName=microsoft/ApplicationInsights-Java
-ARG APP_INSIGHTS_AGENT_VERSION=3.4.13
-FROM hmctspublic.azurecr.io/base/java:17-distroless
+ARG APP_INSIGHTS_AGENT_VERSION=3.4.18
+FROM hmctspublic.azurecr.io/base/java:21-distroless
 
 COPY lib/applicationinsights.json /opt/app/
 COPY build/libs/sscs-cron-trigger.jar /opt/app/
 
-EXPOSE 4550
+EXPOSE 8080
 CMD [ "sscs-cron-trigger.jar" ]

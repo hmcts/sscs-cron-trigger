@@ -1,5 +1,5 @@
 server:
-  port: 4550
+  port: 8080
 
 management:
   endpoint:
@@ -12,13 +12,13 @@ management:
         include: health, info, prometheus
 
 springdoc:
-  packagesToScan: uk.gov.hmcts.reform.demo.controllers
+  packagesToScan: uk.gov.hmcts.reform.cron-trigger.controllers
   writer-with-order-by-keys: true
 
 #If you use a database then uncomment below lines and update db properties accordingly
 spring:
   config:
-    import: "optional:configtree:/mnt/secrets/rpe/"
+    import: "optional:configtree:/mnt/secrets/sscs/"
   application:
     name: SSCS Nightly Event Trigger
 
@@ -45,4 +45,4 @@ core_case_data:
 
 azure:
   application-insights:
-    instrumentation-key: ${rpe.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}
+    instrumentation-key: ${sscs.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}

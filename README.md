@@ -1,83 +1,3 @@
-# SSCS Nightly CCD Event Trigger
-
-A nightly application that searches for cases matching a given criteria and triggers a CCD event. These events are then used to initiate work allocation tasks. The application is scheduled to run every night and terminates when completed.
-
-The events:
-
-  * directionDueToday - triggered on cases where the directionDueDate is today.
-  * prepareForHearing - triggered on cases where the next hearing is in 14 days
-  * hearingToday - triggered on cases where there is a hearing today.
-
-The application can be run multiple times but will only trigger the event once. The case events are searched to check if the event has already been triggered.
-
-The application uses the current date as today but the date can be specified using:
-~~~
-./gradlew bootRun --trigger.date=yyyy-MM-dd
-~~~
-
-## Plugins
-
-The template contains the following plugins:
-
-  * checkstyle
-
-    https://docs.gradle.org/current/userguide/checkstyle_plugin.html
-
-    Performs code style checks on Java source files using Checkstyle and generates reports from these checks.
-    The checks are included in gradle's *check* task (you can run them by executing `./gradlew check` command).
-
-  * pmd
-
-    https://docs.gradle.org/current/userguide/pmd_plugin.html
-
-    Performs static code analysis to finds common programming flaws. Included in gradle `check` task.
-
-
-  * jacoco
-
-    https://docs.gradle.org/current/userguide/jacoco_plugin.html
-
-    Provides code coverage metrics for Java code via integration with JaCoCo.
-    You can create the report by running the following command:
-
-    ```bash
-      ./gradlew jacocoTestReport
-    ```
-
-    The report will be created in build/reports subdirectory in your project directory.
-
-  * io.spring.dependency-management
-
-    https://github.com/spring-gradle-plugins/dependency-management-plugin
-
-    Provides Maven-like dependency management. Allows you to declare dependency management
-    using `dependency 'groupId:artifactId:version'`
-    or `dependency group:'group', name:'name', version:version'`.
-
-  * org.springframework.boot
-
-    http://projects.spring.io/spring-boot/
-
-    Reduces the amount of work needed to create a Spring application
-
-  * org.owasp.dependencycheck
-
-    https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/index.html
-
-    Provides monitoring of the project's dependent libraries and creating a report
-    of known vulnerable components that are included in the build. To run it
-    execute `gradle dependencyCheck` command.
-
-  * com.github.ben-manes.versions
-
-    https://github.com/ben-manes/gradle-versions-plugin
-
-    Provides a task to determine which dependencies have updates. Usage:
-
-    ```bash
-      ./gradlew dependencyUpdates -Drevision=release
-    ```
-
 ## Building and deploying the application
 
 ### Building the application
@@ -105,7 +25,7 @@ Create docker image:
   docker-compose build
 ```
 
-Run the distribution (created in `build/install/spring-boot-template` directory)
+Run the distribution (created in `build/install/sscs-cron-trigger` directory)
 by executing the following command:
 
 ```bash
@@ -113,12 +33,12 @@ by executing the following command:
 ```
 
 This will start the API container exposing the application's port
-(set to `4550` in this template app).
+(set to `8080` in this template app).
 
 In order to test if the application is up, you can call its health endpoint:
 
 ```bash
-  curl http://localhost:4550/health
+  curl http://localhost:8080/health
 ```
 
 You should get a response similar to this:
