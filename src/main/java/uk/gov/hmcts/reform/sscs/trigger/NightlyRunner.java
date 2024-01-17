@@ -57,7 +57,11 @@ public class NightlyRunner implements CommandLineRunner {
         log.info("Matching cases found {}", searchResults.getTotal());
 
         for (final CaseDetails caseDetails : searchResults.getCases()) {
-            processCase(trigger, userId, caseDetails);
+            try {
+                processCase(trigger, userId, caseDetails);
+            } catch (Exception ex) {
+                log.error("Failed to process case {}", caseDetails.getId());
+            }
         }
     }
 
