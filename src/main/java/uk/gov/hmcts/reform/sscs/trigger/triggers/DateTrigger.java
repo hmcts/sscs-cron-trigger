@@ -32,13 +32,8 @@ public class DateTrigger implements Trigger {
     public String query() {
         return new JSONObject()
             .put("query", new JSONObject()
-                .put("bool", new JSONObject()
-                    .put("filter", new JSONArray()
-                        .put(new JSONObject().put("range", new JSONObject()
-                            .put(dateField, new JSONObject()
-                                .put("gte", queryDate.format(DATE_FORMATTER))
-                                .put("lte", queryDate.plusDays(1).format(DATE_FORMATTER))
-                                .put("format",DATE_FORMAT)))))))
+                .put("match", new JSONObject()
+                    .put(dateField, queryDate.format(DATE_FORMATTER))))
             .put("fields", new JSONArray()
                 .put("reference"))
             .put("_source", false)
@@ -58,6 +53,4 @@ public class DateTrigger implements Trigger {
             .id(eventName)
             .build();
     }
-
-
 }

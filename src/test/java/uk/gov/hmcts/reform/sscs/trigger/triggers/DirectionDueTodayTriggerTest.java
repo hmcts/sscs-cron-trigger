@@ -38,12 +38,8 @@ class DirectionDueTodayTriggerTest {
             .isEqualTo("reference");
         assertThat(result.query("/_source"))
             .isEqualTo(false);
-        assertThat(result.query("/query/bool/filter/0/range/data.directionDueDate/gte"))
+        assertThat(result.query("/query/match/data.directionDueDate"))
             .isEqualTo(dateTimeFormatter.format(today));
-        assertThat(result.query("/query/bool/filter/0/range/data.directionDueDate/lte"))
-            .isEqualTo(dateTimeFormatter.format(today.plusDays(1)));
-        assertThat(result.query("/query/bool/filter/0/range/data.directionDueDate/format"))
-            .isEqualTo("yyyy-MM-dd");
     }
 
     @Test

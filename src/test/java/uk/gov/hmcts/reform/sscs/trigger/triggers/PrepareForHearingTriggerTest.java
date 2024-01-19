@@ -30,12 +30,8 @@ class PrepareForHearingTriggerTest {
         JSONObject result = new JSONObject(query);
         assertThat(result.query("/fields/0")).isEqualTo("reference");
         assertThat(result.query("/_source")).isEqualTo(false);
-        assertThat(result.query("/query/bool/filter/0/range/data.hearings.value.hearingDate/gte"))
+        assertThat(result.query("/query/match/data.hearings.value.hearingDate"))
             .isEqualTo(dateTimeFormatter.format(today.plusDays(14)));
-        assertThat(result.query("/query/bool/filter/0/range/data.hearings.value.hearingDate/lte"))
-            .isEqualTo(dateTimeFormatter.format(today.plusDays(15)));
-        assertThat(result.query("/query/bool/filter/0/range/data.hearings.value.hearingDate/format"))
-            .isEqualTo("yyyy-MM-dd");
     }
 
     @Test
