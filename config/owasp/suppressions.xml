@@ -56,6 +56,7 @@
     <cve>CVE-2023-6378</cve>
     <cve>CVE-2023-34053</cve>
     <cve>CVE-2023-34055</cve>
+    <cve>CVE-2023-46589</cve>
   </suppress>
   <!--End of temporary suppression section -->
 </suppressions>
