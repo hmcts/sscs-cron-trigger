@@ -37,6 +37,7 @@ public class DateTrigger implements Trigger {
             .put("fields", new JSONArray()
                 .put("reference"))
             .put("_source", false)
+            .put("size", 10000)
             .toString();
     }
 
