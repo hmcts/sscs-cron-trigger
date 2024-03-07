@@ -1,5 +1,3 @@
-# sscs-cron-trigger
-
 ## Building and deploying the application
 
 ### Building the application
