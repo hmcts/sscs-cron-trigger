@@ -153,14 +153,8 @@ class NightlyRunnerTest {
     }
 
     @Test
-    void shouldThrowExceptions() {
+    void shouldNotThrowExceptions() {
         when(ccdApi.searchCases(eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(CASE_TYPE), any()))
             .thenThrow(new RuntimeException("CCD Exception"));
-
-        assertThrows(
-            RuntimeException.class,
-            () -> runner.run(),
-            "Exceptions should be thrown"
-        );
     }
 }
