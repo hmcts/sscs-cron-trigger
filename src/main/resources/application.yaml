@@ -46,3 +46,6 @@ core_case_data:
 azure:
   application-insights:
     instrumentation-key: ${sscs.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}
+
+trigger:
+  date: ${TRIGGER_DATE:#{null}}

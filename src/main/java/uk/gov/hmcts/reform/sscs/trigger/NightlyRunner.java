@@ -52,16 +52,22 @@ public class NightlyRunner implements CommandLineRunner {
 
         String query = trigger.query();
         log.debug(query);
-        SearchResult searchResults = ccdApi.searchCases(accessToken,
-            authorisationService.getServiceToken(),CASE_TYPE, query);
-        log.info("Matching cases found {}", searchResults.getTotal());
+        try {
+            SearchResult searchResults = ccdApi.searchCases(accessToken,
+                authorisationService.getServiceToken(),CASE_TYPE, query);
+            log.info("Matching cases found {}", searchResults.getTotal());
 
-        for (final CaseDetails caseDetails : searchResults.getCases()) {
-            try {
-                processCase(trigger, userId, caseDetails);
-            } catch (Exception ex) {
-                log.error("Failed to process case {}", caseDetails.getId());
+            for (final CaseDetails caseDetails : searchResults.getCases()) {
+                try {
+                    processCase(trigger, userId, caseDetails);
+                } catch (Exception ex) {
+                    log.error("Failed to process case {}", caseDetails.getId());
+                    log.catching(ex);
+                }
             }
+        } catch (Exception ex) {
+            log.error("Failed to get cases for trigger: {}", trigger.getClass().getName());
+            log.catching(ex);
         }
     }
 
