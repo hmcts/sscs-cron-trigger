@@ -20,29 +20,32 @@ spring:
   config:
     import: "optional:configtree:/mnt/secrets/sscs/"
   application:
-    name: Spring Boot Template
-#  datasource:
-#    driver-class-name: org.postgresql.Driver
-#    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_OPTIONS:}
-#    username: ${DB_USER_NAME}
-#    password: ${DB_PASSWORD}
-#    properties:
-#      charSet: UTF-8
-#    hikari:
-#      minimumIdle: 2
-#      maximumPoolSize: 10
-#      idleTimeout: 10000
-#      poolName: {to-be-defined}HikariCP
-#      maxLifetime: 7200000
-#      connectionTimeout: 30000
-#  jpa:
-#    properties:
-#      hibernate:
-#        jdbc:
-#          lob:
-#            # silence the 'wall-of-text' - unnecessary exception throw about blob types
-#            non_contextual_creation: true
+    name: SSCS Nightly Event Trigger
+
+idam:
+  api:
+    url: ${IDAM_API_URL:http://rse-idam-simulator:5000}
+  s2s-auth:
+    url: ${IDAM_S2S_AUTH:http://localhost:4502}
+    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
+    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
+  client:
+    id: ${IDAM_OAUTH2_CLIENT_ID:sscs}
+    secret: ${IDAM_OAUTH2_CLIENT_SECRET}
+    redirect_uri: ${IDAM_OAUTH2_REDIRECT_URL}
+
+sscs:
+  users:
+    system_update_username: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
+    system_update_password: ${IDAM_SSCS_SYSTEMUPDATE_PASSWORD:password}
+
+core_case_data:
+  api:
+    url: ${CORE_CASE_DATA_API_URL:http://localhost:4452}
 
 azure:
   application-insights:
     instrumentation-key: ${sscs.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}
+
+trigger:
+  date: ${TRIGGER_DATE:#{null}}

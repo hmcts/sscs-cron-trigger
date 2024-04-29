@@ -1,7 +1,4 @@
-# sscs-cron-trigger
-
 ## Building and deploying the application
-
 ### Building the application
 
 The project uses [Gradle](https://gradle.org) as a build tool. It already contains
