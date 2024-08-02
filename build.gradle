@@ -126,7 +126,7 @@ jacocoTestReport {
   }
 }
 
-project.tasks.named('sonar') {
+project.tasks.named('sonarqube') {
   dependsOn jacocoTestReport
 }
 
@@ -134,7 +134,7 @@ project.tasks.named('check') {
   dependsOn integration
 }
 
-sonar {
+sonarqube {
   properties {
     property "sonar.projectName", "Reform :: sscs-cron-trigger"
     property "sonar.projectKey", "uk.gov.hmcts.reform:sscs-cron-trigger"
