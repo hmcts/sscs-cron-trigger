@@ -221,6 +221,15 @@ dependencies {
   }
 }
 
+dependencyManagement {
+  dependencies {
+    // CVE-2024-38809
+    dependencySet(group: 'org.springframework', version: '6.1.12') {
+      entry 'spring-web'
+    }
+  }
+}
+
 application {
   mainClass.set('uk.gov.hmcts.reform.sscs.trigger.Application')
 }
