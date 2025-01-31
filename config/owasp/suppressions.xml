@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-  <suppress until="2024-12-04">
+  <suppress>
     <cve>CVE-2024-47554</cve>
-    <cve>CVE-2024-38819</cve>
+    <cve>CVE-2024-12798</cve>
+    <cve>CVE-2024-12801</cve>
     <cve>CVE-2024-38820</cve>
   </suppress>
 </suppressions>
