@@ -16,7 +16,7 @@ version = '0.0.1'
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(17)
+    languageVersion = JavaLanguageVersion.of(21)
   }
 }
 
@@ -186,8 +186,6 @@ repositories {
 ext {
   log4JVersion = "2.24.3"
 }
-
-//ext['snakeyaml.version'] = '2.4'
 
 dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBoot.class.package.implementationVersion
