@@ -1,4 +1,4 @@
-name: Template CI
+name: Dependency check
 
 on:
   pull_request:
