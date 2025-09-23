@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.sscs.trigger;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.ccd.client.CaseEventsApi;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
@@ -30,19 +32,23 @@ public class NightlyRunner implements CommandLineRunner {
     private final CoreCaseDataApi ccdApi;
     private final CaseEventsApi caseEventsApi;
     private final List<Trigger> triggers;
+    private final ApplicationContext applicationContext;
+
 
     public NightlyRunner(AuthorisationService authorisationService,
-                         CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi, List<Trigger> triggers) {
+                         CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi, List<Trigger> triggers, ApplicationContext applicationContext) {
         requireNonNull(triggers, "triggers must not be null");
         this.ccdApi = ccdApi;
         this.caseEventsApi = caseEventsApi;
         this.triggers = triggers;
         this.authorisationService = authorisationService;
+        this.applicationContext = applicationContext;
     }
 
     @Override
     public void run(String... args) {
         triggers.forEach(t -> execute(t));
+        SpringApplication.exit(applicationContext);
     }
 
     private void execute(Trigger trigger) {
