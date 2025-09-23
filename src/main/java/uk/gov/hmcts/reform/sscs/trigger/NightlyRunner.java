@@ -36,7 +36,8 @@ public class NightlyRunner implements CommandLineRunner {
 
 
     public NightlyRunner(AuthorisationService authorisationService,
-                         CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi, List<Trigger> triggers, ApplicationContext applicationContext) {
+                         CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi,
+                         List<Trigger> triggers, ApplicationContext applicationContext) {
         requireNonNull(triggers, "triggers must not be null");
         this.ccdApi = ccdApi;
         this.caseEventsApi = caseEventsApi;
