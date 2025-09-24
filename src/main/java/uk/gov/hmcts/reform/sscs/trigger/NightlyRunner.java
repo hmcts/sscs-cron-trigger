@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.sscs.trigger;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.ccd.client.CaseEventsApi;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
