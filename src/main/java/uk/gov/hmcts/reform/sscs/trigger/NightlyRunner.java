@@ -32,24 +32,21 @@ public class NightlyRunner implements CommandLineRunner {
     private final CoreCaseDataApi ccdApi;
     private final CaseEventsApi caseEventsApi;
     private final List<Trigger> triggers;
-    private final ApplicationContext applicationContext;
 
 
     public NightlyRunner(AuthorisationService authorisationService,
                          CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi,
-                         List<Trigger> triggers, ApplicationContext applicationContext) {
+                         List<Trigger> triggers) {
         requireNonNull(triggers, "triggers must not be null");
         this.ccdApi = ccdApi;
         this.caseEventsApi = caseEventsApi;
         this.triggers = triggers;
         this.authorisationService = authorisationService;
-        this.applicationContext = applicationContext;
     }
 
     @Override
     public void run(String... args) {
         triggers.forEach(t -> execute(t));
-        SpringApplication.exit(applicationContext);
     }
 
     private void execute(Trigger trigger) {

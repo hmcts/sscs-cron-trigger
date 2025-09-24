@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.trigger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import uk.gov.hmcts.reform.idam.client.IdamApi;
 
@@ -16,6 +17,8 @@ import uk.gov.hmcts.reform.idam.client.IdamApi;
 public class Application {
 
     public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
+        int exitCode = SpringApplication.exit(context);
+        System.exit(exitCode);
     }
 }
