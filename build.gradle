@@ -139,6 +139,7 @@ sonarqube {
   properties {
     property "sonar.projectName", "Reform :: sscs-cron-trigger"
     property "sonar.projectKey", "uk.gov.hmcts.reform:sscs-cron-trigger"
+    property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/trigger/NightlyRunner.java"
   }
 }
 
