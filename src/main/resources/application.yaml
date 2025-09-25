@@ -17,6 +17,8 @@ springdoc:
 
 #If you use a database then uncomment below lines and update db properties accordingly
 spring:
+  main:
+    web-application-type: none
   config:
     import: "optional:configtree:/mnt/secrets/sscs/"
   application:
