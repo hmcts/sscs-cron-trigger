@@ -43,7 +43,7 @@ sscs:
 
 core_case_data:
   api:
-    url: ${CORE_CASE_DATA_API_URL:http://localhost:4452}
+    url: "https://ccd-data-store-api-sscs-tribunals-api-pr-4937.preview.platform.hmcts.net"
 
 azure:
   application-insights:
