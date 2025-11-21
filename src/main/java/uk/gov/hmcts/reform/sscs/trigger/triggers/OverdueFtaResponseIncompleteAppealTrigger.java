@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Component
 public class OverdueFtaResponseIncompleteAppealTrigger extends DateTrigger {
 
-    private static final String DATE_FIELD = "data.directionDueDate";
+    private static final String DATE_FIELD = "data.ftaCommunications.value[0].requestDateTime";
 
     private static final String EVENT_NAME = "overdueResponse";
 
