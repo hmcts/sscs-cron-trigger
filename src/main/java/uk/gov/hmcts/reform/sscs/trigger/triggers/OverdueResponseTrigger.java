@@ -23,7 +23,8 @@ public class OverdueResponseTrigger implements Trigger {
 
     private final LocalDate queryDate;
 
-    public OverdueResponseTrigger(LocalDate triggerDate, String dateField, LocalDate queryDate, String caseState, String eventName) {
+    public OverdueResponseTrigger(LocalDate triggerDate, String dateField,
+                                  LocalDate queryDate, String caseState, String eventName) {
         this.triggerDate = triggerDate;
         this.dateField = dateField;
         this.queryDate = queryDate;
