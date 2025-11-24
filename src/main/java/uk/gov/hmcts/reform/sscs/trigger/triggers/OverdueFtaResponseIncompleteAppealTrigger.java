@@ -13,7 +13,9 @@ public class OverdueFtaResponseIncompleteAppealTrigger extends OverdueResponseTr
 
     private static final String EVENT_NAME = "overdueResponse";
 
+    private static final Integer RESPONSE_DELAY = 2;
+
     public OverdueFtaResponseIncompleteAppealTrigger(LocalDate triggerDate) {
-        super(triggerDate, DATE_FIELD, triggerDate, CASE_STATE, EVENT_NAME);
+        super(triggerDate, DATE_FIELD, triggerDate, CASE_STATE, RESPONSE_DELAY, EVENT_NAME);
     }
 }

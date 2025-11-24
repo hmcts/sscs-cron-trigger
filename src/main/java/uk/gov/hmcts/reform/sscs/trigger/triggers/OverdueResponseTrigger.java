@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+
 public class OverdueResponseTrigger implements Trigger {
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -21,14 +22,17 @@ public class OverdueResponseTrigger implements Trigger {
 
     private final String caseState;
 
+    private final Integer responseDelay;
+
     private final LocalDate queryDate;
 
     public OverdueResponseTrigger(LocalDate triggerDate, String dateField,
-                                  LocalDate queryDate, String caseState, String eventName) {
+                                  LocalDate queryDate, String caseState, Integer responseDelay, String eventName) {
         this.triggerDate = triggerDate;
         this.dateField = dateField;
         this.queryDate = queryDate;
         this.caseState = caseState;
+        this.responseDelay = responseDelay;
         this.eventName = eventName;
 
     }
@@ -41,7 +45,7 @@ public class OverdueResponseTrigger implements Trigger {
                     .put("must", new JSONArray()
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
-                                     .put(dateField, queryDate.format(DATE_FORMATTER))))
+                                     .put(dateField, getRequestDate(queryDate, responseDelay))))
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
                                      .put("state", caseState))))
@@ -68,5 +72,9 @@ public class OverdueResponseTrigger implements Trigger {
         return Event.builder()
             .id(eventName)
             .build();
+    }
+
+    private String getRequestDate(LocalDate queryDate, Integer responseDelay) {
+        return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
     }
 }
