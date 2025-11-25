@@ -62,9 +62,7 @@ public class OverdueResponseTrigger implements Trigger {
 
     @Override
     public boolean isValid(List<CaseEventDetail> events) {
-        return events.stream()
-            .filter(e -> eventName.equals(e.getId()))
-            .noneMatch(e -> e.getCreatedDate().isAfter(triggerDate.atStartOfDay()));
+        return true;
     }
 
     @Override
