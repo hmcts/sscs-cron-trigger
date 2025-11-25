@@ -9,7 +9,7 @@ public class OverdueFtaResponseIncompleteAppealTrigger extends OverdueResponseTr
 
     private static final String DATE_FIELD = "data.ftaCommunications.value.requestDateTime";
 
-    private static final String CASE_STATE = "readyToList";
+    private static final String CASE_STATE = "incompleteApplication";
 
     private static final String EVENT_NAME = "overdueResponse";
 
