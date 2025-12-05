@@ -104,7 +104,7 @@ class NightlyRunnerTest {
 
         /* Verify */
         ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
-        verify(ccdApi, times(1)).searchCases(any(), any(), any(), query.capture());
+        verify(ccdApi, times(2)).searchCases(any(), any(), any(), query.capture());
         assertThat(query.getValue()).contains(TEST_CASE_DATE_PROPERTY);
 
         verify(caseEventsApi, times(1)).findEventDetailsForCase(
@@ -136,7 +136,7 @@ class NightlyRunnerTest {
 
         /* Verify */
         ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
-        verify(ccdApi, times(1)).searchCases(any(), any(), any(), query.capture());
+        verify(ccdApi, times(2)).searchCases(any(), any(), any(), query.capture());
         assertThat(query.getValue()).contains(TEST_CASE_DATE_PROPERTY);
 
         verify(caseEventsApi, times(1)).findEventDetailsForCase(

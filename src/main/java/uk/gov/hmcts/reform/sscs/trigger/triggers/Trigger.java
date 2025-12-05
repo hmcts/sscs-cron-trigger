@@ -13,4 +13,6 @@ public interface Trigger {
 
     Event event();
 
+    boolean canRunMultipleTimes();
+
 }
