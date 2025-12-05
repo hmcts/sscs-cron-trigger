@@ -76,7 +76,7 @@ public class NightlyRunner implements CommandLineRunner {
                 for (final CaseDetails caseDetails : searchResults.getCases()) {
                     try {
                         processCase(trigger, userId, caseDetails);
-                        searchResults = checkForMatchingCases (accessToken, query, trigger);
+                        searchResults = checkForMatchingCases(accessToken, query, trigger);
                     } catch (Exception ex) {
                         log.error("Failed to process case {}", caseDetails.getId());
                         log.catching(ex);
@@ -84,7 +84,7 @@ public class NightlyRunner implements CommandLineRunner {
                     }
                 }
             }
-        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger)!=null);
+        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger) != null);
     }
 
     private void processCase(Trigger trigger, String userId, CaseDetails caseDetails) {
