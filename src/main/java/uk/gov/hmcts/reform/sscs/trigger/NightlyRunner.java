@@ -69,23 +69,24 @@ public class NightlyRunner implements CommandLineRunner {
 
         String query = trigger.query();
         log.debug(query);
-        try {
-            SearchResult searchResults = ccdApi.searchCases(accessToken,
-                authorisationService.getServiceToken(),CASE_TYPE, query);
-            log.info("Matching cases found {}", searchResults.getTotal());
 
-            for (final CaseDetails caseDetails : searchResults.getCases()) {
-                try {
-                    processCase(trigger, userId, caseDetails);
-                } catch (Exception ex) {
-                    log.error("Failed to process case {}", caseDetails.getId());
-                    log.catching(ex);
+        int i = 0;
+        do {
+            SearchResult searchResults = checkForMatchingCases(accessToken, query, trigger);
+            if (searchResults != null) {
+                for (final CaseDetails caseDetails : searchResults.getCases()) {
+                    try {
+                        processCase(trigger, userId, caseDetails);
+                        searchResults = checkForMatchingCases(accessToken, query, trigger);
+                    } catch (Exception ex) {
+                        log.error("Failed to process case {}", caseDetails.getId());
+                        log.catching(ex);
+                        break;
+                    }
                 }
             }
-        } catch (Exception ex) {
-            log.error("Failed to get cases for trigger: {}", trigger.getClass().getName());
-            log.catching(ex);
-        }
+            i++;
+        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger) != null && i < 5);
     }
 
     private void processCase(Trigger trigger, String userId, CaseDetails caseDetails) {
@@ -115,6 +116,19 @@ public class NightlyRunner implements CommandLineRunner {
 
             ccdApi.submitEventForCaseWorker(accessToken, authorisationService.getServiceToken(), userId,
                                             JURISDICTION_ID, CASE_TYPE, caseId, true, eventContent);
+        }
+    }
+
+    private SearchResult checkForMatchingCases(String accessToken, String query, Trigger trigger) {
+        try {
+            SearchResult searchResults = ccdApi.searchCases(accessToken,
+                                                            authorisationService.getServiceToken(),CASE_TYPE, query);
+            log.info("Matching cases found {}", searchResults.getTotal());
+            return searchResults;
+        } catch (Exception ex) {
+            log.error("Failed to get cases for trigger: {}", trigger.getClass().getName());
+            log.catching(ex);
+            return null;
         }
     }
 }
