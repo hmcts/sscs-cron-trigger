@@ -70,6 +70,7 @@ public class NightlyRunner implements CommandLineRunner {
         String query = trigger.query();
         log.debug(query);
 
+        int i = 0;
         do {
             SearchResult searchResults = checkForMatchingCases(accessToken, query, trigger);
             if (searchResults != null) {
@@ -84,7 +85,8 @@ public class NightlyRunner implements CommandLineRunner {
                     }
                 }
             }
-        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger) != null);
+            i++;
+        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger) != null && i<5);
     }
 
     private void processCase(Trigger trigger, String userId, CaseDetails caseDetails) {
