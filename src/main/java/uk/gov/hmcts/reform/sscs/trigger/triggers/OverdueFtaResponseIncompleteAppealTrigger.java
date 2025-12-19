@@ -11,7 +11,7 @@ public class OverdueFtaResponseIncompleteAppealTrigger extends OverdueResponseTr
 
     private static final String CASE_STATE = "incompleteApplication";
 
-    private static final String EVENT_NAME = "overdueResponse";
+    private static final String EVENT_NAME = "overdueFtaResponse";
 
     private static final Integer RESPONSE_DELAY = 2;
 

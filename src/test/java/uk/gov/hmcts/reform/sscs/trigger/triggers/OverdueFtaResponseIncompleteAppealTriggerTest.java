@@ -59,6 +59,6 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
     void shouldReturnCorrectEvent() {
         Event event = trigger.event();
 
-        assertThat(event.getId()).isEqualTo("overdueResponse");
+        assertThat(event.getId()).isEqualTo("overdueFtaResponse");
     }
 }
