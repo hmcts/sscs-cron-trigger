@@ -86,7 +86,7 @@ public class NightlyRunner implements CommandLineRunner {
                 }
             }
             i++;
-        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger) != null && i < 5);
+        } while (trigger.canRunMultipleTimes() && checkForMatchingCases(accessToken, query, trigger) != null && i < 4);
     }
 
     private void processCase(Trigger trigger, String userId, CaseDetails caseDetails) {
