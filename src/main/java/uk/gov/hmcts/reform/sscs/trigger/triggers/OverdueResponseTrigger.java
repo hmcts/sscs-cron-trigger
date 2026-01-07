@@ -78,9 +78,4 @@ public class OverdueResponseTrigger implements Trigger {
     private String getRequestDate(LocalDate queryDate, Integer responseDelay) {
         return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
     }
-
-    @Override
-    public boolean canRunMultipleTimes() {
-        return true;
-    }
 }

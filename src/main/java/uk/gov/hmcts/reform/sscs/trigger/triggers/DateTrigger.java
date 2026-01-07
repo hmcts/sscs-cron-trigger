@@ -54,9 +54,4 @@ public class DateTrigger implements Trigger {
             .id(eventName)
             .build();
     }
-
-    @Override
-    public boolean canRunMultipleTimes() {
-        return false;
-    }
 }
