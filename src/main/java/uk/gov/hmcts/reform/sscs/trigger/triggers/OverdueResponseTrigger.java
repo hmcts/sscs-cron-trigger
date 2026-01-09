@@ -4,7 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
+import uk.gov.hmcts.reform.sscs.service.BusinessDaysCalculatorService;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,15 +28,18 @@ public class OverdueResponseTrigger implements Trigger {
 
     private final LocalDate queryDate;
 
+    private final BusinessDaysCalculatorService businessDaysCalculatorService;
+
     public OverdueResponseTrigger(LocalDate triggerDate, String dateField,
-                                  LocalDate queryDate, String caseState, Integer responseDelay, String eventName) {
+                                  LocalDate queryDate, String caseState, Integer responseDelay, String eventName,
+                                  BusinessDaysCalculatorService businessDaysCalculatorService) {
         this.triggerDate = triggerDate;
         this.dateField = dateField;
         this.queryDate = queryDate;
         this.caseState = caseState;
         this.responseDelay = responseDelay;
         this.eventName = eventName;
-
+        this.businessDaysCalculatorService = businessDaysCalculatorService;
     }
 
     @Override
@@ -76,6 +81,10 @@ public class OverdueResponseTrigger implements Trigger {
     }
 
     private String getRequestDate(LocalDate queryDate, Integer responseDelay) {
-        return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
+        try {
+            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay).toString();
+        } catch (IOException e) {
+            return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
+        }
     }
 }
