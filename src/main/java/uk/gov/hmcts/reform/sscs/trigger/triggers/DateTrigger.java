@@ -34,15 +34,15 @@ public class DateTrigger implements Trigger {
     @Override
     public void execute() {
         log.info("Running trigger: {}", getClass().getName());
-        nightlyRunner.getCases(query())
+        nightlyRunner.findCases(query())
             .forEach(caseDetails -> processCase(caseDetails.getId().toString()));
     }
 
     @Override
     public void processCase(String caseId) {
         log.info("Processing case {}", caseId);
-        if (isValid(nightlyRunner.getEvents(caseId))) {
-            nightlyRunner.submitEvents(caseId, event());
+        if (isValid(nightlyRunner.getCaseEvents(caseId))) {
+            nightlyRunner.processCase(caseId, event());
         }
     }
 
@@ -63,8 +63,8 @@ public class DateTrigger implements Trigger {
     @Override
     public boolean isValid(List<CaseEventDetail> events) {
         return events.stream()
-            .filter(e -> eventName.equals(e.getId()))
-            .noneMatch(e -> e.getCreatedDate().isAfter(triggerDate.atStartOfDay()));
+            .filter(event -> eventName.equals(event.getId()))
+            .noneMatch(event -> event.getCreatedDate().isAfter(triggerDate.atStartOfDay()));
     }
 
     @Override
