@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.idam.client.IdamApi;
+import uk.gov.hmcts.reform.sscs.client.JudicialRefDataApi;
 import uk.gov.hmcts.reform.sscs.trigger.service.AuthorisationService;
 import uk.gov.hmcts.reform.sscs.trigger.triggers.Trigger;
 
@@ -29,8 +30,12 @@ import static java.util.Objects.requireNonNull;
 @ComponentScan(basePackages = {
     "uk.gov.hmcts.reform.idam.client",
     "uk.gov.hmcts.reform.ccd.client",
-    "uk.gov.hmcts.reform.sscs"})
-@EnableFeignClients(clients = { IdamApi.class })
+    "uk.gov.hmcts.reform.sscs.service",
+    "uk.gov.hmcts.reform.sscs.trigger",
+    "uk.gov.hmcts.reform.sscs.client",
+    "uk.gov.hmcts.reform.sscs.idam"
+})
+@EnableFeignClients(clients = { IdamApi.class, JudicialRefDataApi.class })
 @SuppressWarnings("PMD.DoNotTerminateVM")
 public class NightlyRunner implements CommandLineRunner {
 
