@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
 
 import java.time.LocalDate;
 
@@ -17,11 +16,6 @@ public class NightlyRunnerConfiguration {
     @Bean
     public OkHttpClient okHttpClient() {
         return new OkHttpClient();
-    }
-
-    @Bean
-    public CcdRequestDetails ccdRequestDetails() {
-        return CcdRequestDetails.builder().caseTypeId("Benefit").jurisdictionId("SSCS").build();
     }
 
 
