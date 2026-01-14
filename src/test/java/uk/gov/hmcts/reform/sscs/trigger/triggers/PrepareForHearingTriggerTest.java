@@ -3,20 +3,24 @@ package uk.gov.hmcts.reform.sscs.trigger.triggers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.ccd.client.model.Event;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PrepareForHearingTriggerTest {
 
+    @Mock
+    private NightlyRunner nightlyRunner;
+
     private Trigger trigger;
 
     @BeforeEach
     void setup() {
-        trigger = new PrepareForHearingTrigger(LocalDate.now());
+        trigger = new PrepareForHearingTrigger(nightlyRunner, LocalDate.now());
     }
 
     @Test
@@ -36,8 +40,6 @@ class PrepareForHearingTriggerTest {
 
     @Test
     void shouldReturnsCorrectEvent() {
-        Event event = trigger.event();
-
-        assertThat(event.getId()).isEqualTo("prepareForHearing");
+        assertThat(trigger.event()).isEqualTo("prepareForHearing");
     }
 }

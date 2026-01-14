@@ -1,11 +1,7 @@
 package uk.gov.hmcts.reform.sscs.trigger;
 
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.ccd.client.CaseEventsApi;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
@@ -13,99 +9,55 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
-import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
-import uk.gov.hmcts.reform.idam.client.IdamApi;
 import uk.gov.hmcts.reform.sscs.trigger.service.AuthorisationService;
-import uk.gov.hmcts.reform.sscs.trigger.triggers.Trigger;
-
-import java.util.List;
-
-import static java.util.Objects.requireNonNull;
 
 @Component
 @Log4j2
-@SpringBootApplication
-@ComponentScan(basePackages = {
-    "uk.gov.hmcts.reform.idam.client",
-    "uk.gov.hmcts.reform.ccd.client",
-    "uk.gov.hmcts.reform.sscs"})
-@EnableFeignClients(clients = { IdamApi.class })
-@SuppressWarnings("PMD.DoNotTerminateVM")
-public class NightlyRunner implements CommandLineRunner {
+public class NightlyRunner {
 
     private static final String CASE_TYPE = "Benefit";
     private static final String JURISDICTION_ID = "SSCS";
 
-    private final AuthorisationService authorisationService;
+    private final AuthorisationService authService;
     private final CoreCaseDataApi ccdApi;
     private final CaseEventsApi caseEventsApi;
-    private final List<Trigger> triggers;
 
 
-    public NightlyRunner(AuthorisationService authorisationService,
-                         CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi,
-                         List<Trigger> triggers) {
-        requireNonNull(triggers, "triggers must not be null");
+    public NightlyRunner(AuthorisationService authService,
+                         CoreCaseDataApi ccdApi, CaseEventsApi caseEventsApi) {
         this.ccdApi = ccdApi;
         this.caseEventsApi = caseEventsApi;
-        this.triggers = triggers;
-        this.authorisationService = authorisationService;
+        this.authService = authService;
     }
 
-    public static void main(final String[] args) {
-        SpringApplication.run(NightlyRunner.class, args);
-    }
-
-    @Override
-    public void run(String... args) {
-        triggers.forEach(t -> execute(t));
-    }
-
-    private void execute(Trigger trigger) {
-        log.info("Running trigger: {}", trigger.getClass().getName());
-        String accessToken = authorisationService.getSystemUserAccessToken();
-        String userId = authorisationService.getSystemUserId();
-
-        String query = trigger.query();
+    public List<CaseDetails> getCases(String query) {
+        String accessToken = authService.getSystemUserAccessToken();
         log.debug(query);
         try {
-            SearchResult searchResults = ccdApi.searchCases(accessToken,
-                authorisationService.getServiceToken(),CASE_TYPE, query);
+            var searchResults = ccdApi.searchCases(accessToken, authService.getServiceToken(), CASE_TYPE, query);
             log.info("Matching cases found {}", searchResults.getTotal());
-
-            for (final CaseDetails caseDetails : searchResults.getCases()) {
-                try {
-                    processCase(trigger, userId, caseDetails);
-                } catch (Exception ex) {
-                    log.error("Failed to process case {}", caseDetails.getId());
-                    log.catching(ex);
-                }
-            }
+            return searchResults.getCases();
         } catch (Exception ex) {
-            log.error("Failed to get cases for trigger: {}", trigger.getClass().getName());
+            log.error("Failed to get cases for trigger: {}", getClass().getName());
             log.catching(ex);
+            return List.of();
         }
     }
 
-    private void processCase(Trigger trigger, String userId, CaseDetails caseDetails) {
-        String accessToken = authorisationService.getSystemUserAccessToken();
-        final String caseId = Long.toString(caseDetails.getId());
-
+    public void submitEvents(String caseId, String eventId) {
         log.info("Checking case {}", caseId);
 
-        final List<CaseEventDetail> events = caseEventsApi.findEventDetailsForCase(
-            accessToken, authorisationService.getServiceToken(), userId,
-            JURISDICTION_ID, CASE_TYPE, caseId);
+        String accessToken = authService.getSystemUserAccessToken();
+        String serviceToken = authService.getServiceToken();
+        String userId = authService.getSystemUserId();
 
-        if (trigger.isValid(events)) {
-            Event event = trigger.event();
+        try {
+            log.info("Triggering event {} on case {}", eventId, caseId);
 
-            log.info("Triggering event {} on case {}", event.getId(), caseId);
-
-            StartEventResponse startEventResponse = ccdApi.startEventForCaseWorker(
-                accessToken, authorisationService.getServiceToken(), userId,
-                JURISDICTION_ID, CASE_TYPE, caseId, event.getId());
+            StartEventResponse startEventResponse = ccdApi
+                .startEventForCaseWorker(accessToken, serviceToken, userId,
+                                         JURISDICTION_ID, CASE_TYPE, caseId, eventId);
 
             CaseDataContent eventContent = CaseDataContent.builder()
                 .eventToken(startEventResponse.getToken())
@@ -113,8 +65,26 @@ public class NightlyRunner implements CommandLineRunner {
                 .caseReference(caseId)
                 .build();
 
-            ccdApi.submitEventForCaseWorker(accessToken, authorisationService.getServiceToken(), userId,
-                                            JURISDICTION_ID, CASE_TYPE, caseId, true, eventContent);
+            ccdApi.submitEventForCaseWorker(
+                accessToken, serviceToken, userId, JURISDICTION_ID, CASE_TYPE, caseId, true, eventContent);
+        } catch (Exception ex) {
+            log.error("Failed to submit events for case {}", caseId);
+            log.catching(ex);
+        }
+    }
+
+    public List<CaseEventDetail> getEvents(String caseId) {
+        try {
+            String accessToken = authService.getSystemUserAccessToken();
+            String serviceToken = authService.getServiceToken();
+            String userId = authService.getSystemUserId();
+
+            return caseEventsApi
+                .findEventDetailsForCase(accessToken, serviceToken, userId, JURISDICTION_ID, CASE_TYPE, caseId);
+        } catch (Exception ex) {
+            log.error("Failed to get events for case {}", caseId);
+            log.catching(ex);
+            return List.of();
         }
     }
 }

@@ -69,19 +69,19 @@ class NightlyRunnerTest {
     private final List<Trigger> triggers = new ArrayList<>();
 
     @InjectMocks
-    private NightlyRunner runner;
+    private NightlyRunnerApp runner;
 
     @BeforeEach
     void initMocks() {
         MockitoAnnotations.initMocks(this);
 
-        triggers.add(new DateTrigger(LocalDate.now(), TEST_CASE_DATE_PROPERTY, LocalDate.now(), TEST_EVENT_ID));
+        triggers.add(new DateTrigger(null, LocalDate.now(), TEST_CASE_DATE_PROPERTY, LocalDate.now(), TEST_EVENT_ID));
 
         when(authorisationService.getSystemUserAccessToken()).thenReturn(ACCESS_TOKEN);
         when(authorisationService.getSystemUserId()).thenReturn(USER_ID);
         when(authorisationService.getServiceToken()).thenReturn(SERVICE_TOKEN);
 
-        doReturn(SearchResult.builder().cases(Arrays.asList(CASE_1_DETAILS)).build())
+        doReturn(SearchResult.builder().cases(List.of(CASE_1_DETAILS)).build())
             .when(ccdApi).searchCases(any(), any(), any(), anyString());
 
         doReturn(StartEventResponse.builder().token(EVENT_TOKEN).eventId(TEST_EVENT_ID).build())
@@ -94,7 +94,7 @@ class NightlyRunnerTest {
     @Test
     void shouldTriggerHearingTodayEvent() {
         /* Setup */
-        doReturn(Arrays.asList(SOME_EVENT))
+        doReturn(List.of(SOME_EVENT))
             .when(caseEventsApi).findEventDetailsForCase(
                 ACCESS_TOKEN, SERVICE_TOKEN, USER_ID,
                 JURISDICTION_ID, CASE_TYPE, Long.toString(CASE_1_ID));

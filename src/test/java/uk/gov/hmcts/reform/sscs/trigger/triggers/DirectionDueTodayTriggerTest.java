@@ -3,14 +3,15 @@ package uk.gov.hmcts.reform.sscs.trigger.triggers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
-import uk.gov.hmcts.reform.ccd.client.model.Event;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,11 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DirectionDueTodayTriggerTest {
 
+    @Mock
+    private NightlyRunner nightlyRunner;
+
     private Trigger trigger;
 
     @BeforeEach
     void setup() {
-        trigger = new DirectionDueTodayTrigger(LocalDate.now());
+        trigger = new DirectionDueTodayTrigger(nightlyRunner, LocalDate.now());
     }
 
     @Test
@@ -44,7 +48,7 @@ class DirectionDueTodayTriggerTest {
 
     @Test
     void isValidShouldReturnTrueWhenEventNotPreviouslyTriggered() {
-        List<CaseEventDetail> events = Arrays.asList(
+        List<CaseEventDetail> events = List.of(
             CaseEventDetail.builder().id("someEvent").createdDate(LocalDateTime.now()).build()
         );
 
@@ -63,8 +67,6 @@ class DirectionDueTodayTriggerTest {
 
     @Test
     void shouldReturnsCorrectEvent() {
-        Event event = trigger.event();
-
-        assertThat(event.getId()).isEqualTo("directionDueToday");
+        assertThat(trigger.event()).isEqualTo("directionDueToday");
     }
 }
