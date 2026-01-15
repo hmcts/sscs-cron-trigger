@@ -24,9 +24,11 @@ import uk.gov.hmcts.reform.sscs.trigger.triggers.Trigger;
 @SuppressWarnings("PMD.DoNotTerminateVM")
 public class NightlyRunnerApp implements CommandLineRunner {
 
+    private final NightlyRunner nightlyRunner;
     private final List<Trigger> triggers;
 
-    public NightlyRunnerApp(List<Trigger> triggers) {
+    public NightlyRunnerApp(NightlyRunner nightlyRunner, List<Trigger> triggers) {
+        this.nightlyRunner = nightlyRunner;
         requireNonNull(triggers, "triggers must not be null");
         this.triggers = triggers;
     }
@@ -37,6 +39,18 @@ public class NightlyRunnerApp implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        triggers.forEach(Trigger::execute);
+        try {
+            triggers.forEach(trigger -> {
+                log.info("Running trigger: {}", getClass().getName());
+                nightlyRunner
+                    .findCases(trigger.query())
+                    .forEach(caseDetails ->
+                                 trigger.processCase(caseDetails.getId().toString())
+                    );
+            });
+        } catch (Exception e) {
+            log.error("Failed to execute trigger {}", getClass().getName());
+            log.catching(e);
+        }
     }
 }

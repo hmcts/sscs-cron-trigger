@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import uk.gov.hmcts.reform.ccd.client.CaseEventsApi;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
@@ -61,6 +60,8 @@ class NightlyRunnerTest {
 
     @Mock
     private AuthorisationService authorisationService;
+    @Mock
+    private NightlyRunner nightlyRunner;
     @Spy
     private CoreCaseDataApi ccdApi;
     @Spy
@@ -73,9 +74,7 @@ class NightlyRunnerTest {
 
     @BeforeEach
     void initMocks() {
-        MockitoAnnotations.initMocks(this);
-
-        triggers.add(new DateTrigger(null, LocalDate.now(), TEST_CASE_DATE_PROPERTY, LocalDate.now(), TEST_EVENT_ID));
+        triggers.add(new DateTrigger(nightlyRunner, LocalDate.now(), TEST_CASE_DATE_PROPERTY, LocalDate.now(), TEST_EVENT_ID));
 
         when(authorisationService.getSystemUserAccessToken()).thenReturn(ACCESS_TOKEN);
         when(authorisationService.getSystemUserId()).thenReturn(USER_ID);

@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface Trigger {
 
-    void execute();
     void processCase(String caseId);
     String query();
     String event();

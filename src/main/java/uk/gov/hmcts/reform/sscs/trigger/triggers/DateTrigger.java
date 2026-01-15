@@ -32,13 +32,6 @@ public class DateTrigger implements Trigger {
     }
 
     @Override
-    public void execute() {
-        log.info("Running trigger: {}", getClass().getName());
-        nightlyRunner.findCases(query())
-            .forEach(caseDetails -> processCase(caseDetails.getId().toString()));
-    }
-
-    @Override
     public void processCase(String caseId) {
         log.info("Processing case {}", caseId);
         if (isValid(nightlyRunner.getCaseEvents(caseId))) {
