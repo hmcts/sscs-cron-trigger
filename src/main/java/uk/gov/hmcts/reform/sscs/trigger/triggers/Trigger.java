@@ -7,8 +7,11 @@ import java.util.List;
 public interface Trigger {
 
     void processCase(String caseId);
+
     String query();
+
     String event();
+
     boolean isValid(List<CaseEventDetail> events);
 
 }

@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
 import java.time.LocalDate;
-import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
 @Component
 public class DirectionDueTodayTrigger extends DateTrigger {

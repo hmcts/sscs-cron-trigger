@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.trigger;
 
-import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.ccd.client.CaseEventsApi;
@@ -11,6 +10,8 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.sscs.trigger.service.AuthorisationService;
+
+import java.util.List;
 
 @Component
 @Log4j2
