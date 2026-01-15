@@ -39,18 +39,18 @@ public class NightlyRunnerApp implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        try {
-            triggers.forEach(trigger -> {
+        triggers.forEach(trigger -> {
+            try {
                 log.info("Running trigger: {}", getClass().getName());
                 nightlyRunner
                     .findCases(trigger.query())
                     .forEach(caseDetails ->
                                  trigger.processCase(caseDetails.getId().toString())
                     );
-            });
-        } catch (Exception e) {
-            log.error("Failed to execute trigger {}", getClass().getName());
-            log.catching(e);
-        }
+            } catch (Exception e) {
+                log.error("Failed to execute trigger {}", getClass().getName());
+                log.catching(e);
+            }
+        });
     }
 }

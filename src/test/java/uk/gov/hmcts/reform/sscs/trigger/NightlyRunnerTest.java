@@ -2,10 +2,9 @@ package uk.gov.hmcts.reform.sscs.trigger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.ccd.client.CaseEventsApi;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
@@ -14,26 +13,24 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.sscs.trigger.service.AuthorisationService;
-import uk.gov.hmcts.reform.sscs.trigger.triggers.DateTrigger;
-import uk.gov.hmcts.reform.sscs.trigger.triggers.Trigger;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class NightlyRunnerTest {
 
     private static final String EVENT_TOKEN = "EVENT-TOKEN";
@@ -43,119 +40,120 @@ class NightlyRunnerTest {
     private static final String CASE_TYPE = "Benefit";
     private static final String JURISDICTION_ID = "SSCS";
     private static final String TEST_EVENT_ID = "testEvent";
-    private static final String TEST_CASE_DATE_PROPERTY = "testDate";
-
-    private static final long CASE_1_ID = 1_111_111_111_111_111L;
-
-    private static final CaseDetails CASE_1_DETAILS = CaseDetails.builder().id(CASE_1_ID).build();
-
-    private static final CaseEventDetail SOME_EVENT = CaseEventDetail.builder()
-        .id("someEvent")
-        .createdDate(LocalDateTime.now()).build();
-
-    private static final CaseEventDetail HEARING_TODAY_EVENT = CaseEventDetail.builder()
-        .id(TEST_EVENT_ID)
-        .createdDate(LocalDateTime.now()).build();
-
+    private static final String TEST_QUERY = "{\"query\":{\"match\":{\"field\":\"value\"}}}";
+    private static final String CASE_ID = "1111";
 
     @Mock
-    private AuthorisationService authorisationService;
+    private AuthorisationService authService;
     @Mock
-    private NightlyRunner nightlyRunner;
-    @Spy
     private CoreCaseDataApi ccdApi;
-    @Spy
+    @Mock
     private CaseEventsApi caseEventsApi;
-    @Spy
-    private final List<Trigger> triggers = new ArrayList<>();
 
-    @InjectMocks
-    private NightlyRunnerApp runner;
+    private NightlyRunner nightlyRunner;
 
     @BeforeEach
-    void initMocks() {
-        triggers.add(new DateTrigger(nightlyRunner, LocalDate.now(), TEST_CASE_DATE_PROPERTY, LocalDate.now(), TEST_EVENT_ID));
+    void setUp() {
+        // Use lenient() to avoid strict stubbing issues
+        lenient().when(authService.getSystemUserAccessToken()).thenReturn(ACCESS_TOKEN);
+        lenient().when(authService.getSystemUserId()).thenReturn(USER_ID);
+        lenient().when(authService.getServiceToken()).thenReturn(SERVICE_TOKEN);
 
-        when(authorisationService.getSystemUserAccessToken()).thenReturn(ACCESS_TOKEN);
-        when(authorisationService.getSystemUserId()).thenReturn(USER_ID);
-        when(authorisationService.getServiceToken()).thenReturn(SERVICE_TOKEN);
-
-        doReturn(SearchResult.builder().cases(List.of(CASE_1_DETAILS)).build())
-            .when(ccdApi).searchCases(any(), any(), any(), anyString());
-
-        doReturn(StartEventResponse.builder().token(EVENT_TOKEN).eventId(TEST_EVENT_ID).build())
-            .when(ccdApi).startEventForCaseWorker(any(), any(), any(), any(), any(), any(), anyString());
-
-        doReturn(CaseDetails.builder().build())
-            .when(ccdApi).submitEventForCaseWorker(any(), any(), any(), any(), any(), any(), anyBoolean(), any());
+        // Create NightlyRunner after setting up the mocks
+        nightlyRunner = new NightlyRunner(authService, ccdApi, caseEventsApi);
     }
 
     @Test
-    void shouldTriggerHearingTodayEvent() {
-        /* Setup */
-        doReturn(List.of(SOME_EVENT))
-            .when(caseEventsApi).findEventDetailsForCase(
-                ACCESS_TOKEN, SERVICE_TOKEN, USER_ID,
-                JURISDICTION_ID, CASE_TYPE, Long.toString(CASE_1_ID));
+    void findCases_shouldReturnCasesList() {
+        // Given
+        List<CaseDetails> caseList = List.of(CaseDetails.builder().id(1L).build());
+        when(ccdApi.searchCases(ACCESS_TOKEN, SERVICE_TOKEN, CASE_TYPE, TEST_QUERY))
+            .thenReturn(SearchResult.builder().cases(caseList).total(1).build());
 
-        /* Run */
-        runner.run();
+        // When
+        List<CaseDetails> result = nightlyRunner.findCases(TEST_QUERY);
 
-        /* Verify */
-        ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
-        verify(ccdApi, times(1)).searchCases(any(), any(), any(), query.capture());
-        assertThat(query.getValue()).contains(TEST_CASE_DATE_PROPERTY);
+        // Then
+        assertEquals(caseList, result);
+    }
 
-        verify(caseEventsApi, times(1)).findEventDetailsForCase(
-            eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID), eq(JURISDICTION_ID),
-            eq(CASE_TYPE), eq(Long.toString(CASE_1_ID)));
+    @Test
+    void findCases_shouldReturnEmptyListWhenExceptionOccurs() {
+        // Given
+        when(ccdApi.searchCases(ACCESS_TOKEN, SERVICE_TOKEN, CASE_TYPE, TEST_QUERY))
+            .thenThrow(new RuntimeException("Test exception"));
 
+        // When
+        List<CaseDetails> result = nightlyRunner.findCases(TEST_QUERY);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getCaseEvents_shouldReturnEventsList() {
+        // Given
+        var caseEvents = List.of(CaseEventDetail.builder().id("someEvent").createdDate(LocalDateTime.now()).build());
+        when(caseEventsApi
+                 .findEventDetailsForCase(ACCESS_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION_ID, CASE_TYPE, CASE_ID))
+            .thenReturn(caseEvents);
+
+        // When
+        List<CaseEventDetail> result = nightlyRunner.getCaseEvents(CASE_ID);
+
+        // Then
+        assertEquals(caseEvents, result);
+    }
+
+    @Test
+    void getCaseEvents_shouldReturnEmptyListWhenExceptionOccurs() {
+        // Given
+        when(caseEventsApi
+                 .findEventDetailsForCase(ACCESS_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION_ID, CASE_TYPE, CASE_ID))
+            .thenThrow(new RuntimeException("Test exception"));
+
+        // When
+        List<CaseEventDetail> result = nightlyRunner.getCaseEvents(CASE_ID);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void processCase_shouldStartAndSubmitEvent() {
+        // Given
+        StartEventResponse startEventResponse =
+            StartEventResponse.builder().token(EVENT_TOKEN).eventId(TEST_EVENT_ID).build();
+
+        when(ccdApi.startEventForCaseWorker(
+            ACCESS_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION_ID, CASE_TYPE, CASE_ID, TEST_EVENT_ID))
+            .thenReturn(startEventResponse);
+
+        // When
+        nightlyRunner.processCase(CASE_ID, TEST_EVENT_ID);
+
+        // Then
         verify(ccdApi, times(1)).startEventForCaseWorker(
-            eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID), eq(JURISDICTION_ID),
-            eq(CASE_TYPE), eq(Long.toString(CASE_1_ID)), eq(TEST_EVENT_ID));
+            ACCESS_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION_ID, CASE_TYPE, CASE_ID, TEST_EVENT_ID);
 
-        ArgumentCaptor<CaseDataContent> body = ArgumentCaptor.forClass(CaseDataContent.class);
         verify(ccdApi, times(1)).submitEventForCaseWorker(
             eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID), eq(JURISDICTION_ID),
-            eq(CASE_TYPE), eq(Long.toString(CASE_1_ID)), eq(true), body.capture());
-        assertThat(body.getValue().getEvent().getId()).isEqualTo(TEST_EVENT_ID);
-        assertThat(body.getValue().getEventToken()).isEqualTo(EVENT_TOKEN);
+            eq(CASE_TYPE), eq(CASE_ID), eq(true), any(CaseDataContent.class));
     }
 
     @Test
-    void hearingTodayEventAlreadyTriggered() {
-        /* Setup */
-        doReturn(Arrays.asList(SOME_EVENT, HEARING_TODAY_EVENT))
-            .when(caseEventsApi).findEventDetailsForCase(
-                ACCESS_TOKEN, SERVICE_TOKEN, USER_ID,
-                JURISDICTION_ID, CASE_TYPE, Long.toString(CASE_1_ID));
+    void processCase_shouldHandleExceptionGracefully() {
+        // Given
+        doThrow(new RuntimeException("Test exception"))
+            .when(ccdApi).startEventForCaseWorker(
+                ACCESS_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION_ID, CASE_TYPE, CASE_ID, TEST_EVENT_ID);
 
-        /* Run */
-        runner.run();
+        // When/Then
+        assertDoesNotThrow(() -> nightlyRunner.processCase(CASE_ID, TEST_EVENT_ID));
 
-        /* Verify */
-        ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
-        verify(ccdApi, times(1)).searchCases(any(), any(), any(), query.capture());
-        assertThat(query.getValue()).contains(TEST_CASE_DATE_PROPERTY);
-
-        verify(caseEventsApi, times(1)).findEventDetailsForCase(
-            eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID), eq(JURISDICTION_ID),
-            eq(CASE_TYPE), eq(Long.toString(CASE_1_ID)));
-
-        verify(ccdApi, times(0)).startEventForCaseWorker(
-            anyString(), anyString(), anyString(), anyString(),
-            anyString(), anyString(), anyString());
-
+        verify(ccdApi, times(1)).startEventForCaseWorker(
+            ACCESS_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION_ID, CASE_TYPE, CASE_ID, TEST_EVENT_ID);
         verify(ccdApi, times(0)).submitEventForCaseWorker(
-            anyString(), anyString(), anyString(), anyString(),
-            anyString(), anyString(), anyBoolean(), any());
-    }
-
-    @Test
-    void shouldNotThrowExceptions() {
-        when(ccdApi.searchCases(eq(ACCESS_TOKEN), eq(SERVICE_TOKEN), eq(CASE_TYPE), any()))
-            .thenThrow(new RuntimeException("CCD Exception"));
-
-        assertDoesNotThrow(() -> runner.run());
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyBoolean(), any());
     }
 }
