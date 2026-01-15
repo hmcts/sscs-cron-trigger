@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
     "uk.gov.hmcts.reform.ccd.client",
     "uk.gov.hmcts.reform.sscs"})
 @EnableFeignClients(clients = { IdamApi.class })
-@SuppressWarnings("PMD.DoNotTerminateVM")
 public class NightlyRunnerApp implements CommandLineRunner {
 
     private final NightlyRunner nightlyRunner;
