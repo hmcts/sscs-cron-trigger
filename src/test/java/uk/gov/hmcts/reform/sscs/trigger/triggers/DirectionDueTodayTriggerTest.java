@@ -5,13 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
+import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
