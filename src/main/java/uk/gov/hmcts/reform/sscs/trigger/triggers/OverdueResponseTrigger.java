@@ -28,6 +28,8 @@ public class OverdueResponseTrigger implements Trigger {
 
     private final LocalDate queryDate;
 
+    private final static Integer querySize = 10_000;
+
     private final BusinessDaysCalculatorService businessDaysCalculatorService;
 
     public OverdueResponseTrigger(LocalDate triggerDate, String dateField,
@@ -64,7 +66,7 @@ public class OverdueResponseTrigger implements Trigger {
             .put("fields", new JSONArray()
                 .put("reference"))
             .put("_source", false)
-            .put("size", 10_000)
+            .put("size", querySize)
             .toString();
     }
 
