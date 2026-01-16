@@ -23,7 +23,8 @@ public class OverdueFtaResponseIncompleteAppealTrigger extends OverdueResponseTr
 
 
     public OverdueFtaResponseIncompleteAppealTrigger(LocalDate triggerDate,
-                                                     BusinessDaysCalculatorService businessDaysCalculatorService, NightlyRunner nightlyRunner) {
+                                                     BusinessDaysCalculatorService businessDaysCalculatorService,
+                                                     NightlyRunner nightlyRunner) {
         super(triggerDate, DATE_FIELD, triggerDate, CASE_STATE, RESPONSE_DELAY, EVENT_NAME,
               businessDaysCalculatorService, nightlyRunner);
         this.businessDaysCalculatorService = businessDaysCalculatorService;
