@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
-import uk.gov.hmcts.reform.ccd.client.model.Event;
+import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
 import java.io.IOException;
@@ -29,9 +29,12 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
     @Mock
     private BusinessDaysCalculatorService businessDaysCalculatorService;
 
+    @Mock
+    private NightlyRunner nightlyRunner;
+
     @BeforeEach
     void setup() throws IOException {
-        trigger = new OverdueFtaResponseIncompleteAppealTrigger(testDate, businessDaysCalculatorService);
+        trigger = new OverdueFtaResponseIncompleteAppealTrigger(testDate, businessDaysCalculatorService, nightlyRunner);
     }
 
     @Test
@@ -70,8 +73,8 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
 
     @Test
     void shouldReturnCorrectEvent() {
-        Event event = trigger.event();
+        String event = trigger.event();
 
-        assertThat(event.getId()).isEqualTo("overdueFtaResponse");
+        assertThat(event).isEqualTo("overdueFtaResponse");
     }
 }

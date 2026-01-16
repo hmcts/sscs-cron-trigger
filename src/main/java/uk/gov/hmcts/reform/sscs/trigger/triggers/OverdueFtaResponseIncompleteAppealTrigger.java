@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
 import java.time.LocalDate;
@@ -18,10 +19,14 @@ public class OverdueFtaResponseIncompleteAppealTrigger extends OverdueResponseTr
 
     private final BusinessDaysCalculatorService businessDaysCalculatorService;
 
+    private final NightlyRunner nightlyRunner;
+
+
     public OverdueFtaResponseIncompleteAppealTrigger(LocalDate triggerDate,
-                                                     BusinessDaysCalculatorService businessDaysCalculatorService) {
+                                                     BusinessDaysCalculatorService businessDaysCalculatorService, NightlyRunner nightlyRunner) {
         super(triggerDate, DATE_FIELD, triggerDate, CASE_STATE, RESPONSE_DELAY, EVENT_NAME,
-              businessDaysCalculatorService);
+              businessDaysCalculatorService, nightlyRunner);
         this.businessDaysCalculatorService = businessDaysCalculatorService;
+        this.nightlyRunner = nightlyRunner;
     }
 }
