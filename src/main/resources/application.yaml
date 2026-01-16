@@ -58,7 +58,3 @@ azure:
 
 trigger:
   date: ${TRIGGER_DATE:#{null}}
-
-feature:
-  elinksV2:
-    enabled: true

@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.sscs.service.BusinessDaysCalculatorService;
+import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
 import java.time.LocalDate;
 

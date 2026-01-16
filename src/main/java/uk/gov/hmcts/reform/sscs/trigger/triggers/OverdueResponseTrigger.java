@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
-import uk.gov.hmcts.reform.sscs.service.BusinessDaysCalculatorService;
+import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,7 +28,7 @@ public class OverdueResponseTrigger implements Trigger {
 
     private final LocalDate queryDate;
 
-    private final static Integer querySize = 10_000;
+    private static final Integer querySize = 10_000;
 
     private final BusinessDaysCalculatorService businessDaysCalculatorService;
 
