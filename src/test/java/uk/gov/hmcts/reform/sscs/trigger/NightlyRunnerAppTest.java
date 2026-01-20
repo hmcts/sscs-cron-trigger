@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -65,8 +65,8 @@ class NightlyRunnerAppTest {
         verify(trigger2, times(1)).query();
         verify(nightlyRunner, times(1)).findCases(query1);
         verify(nightlyRunner, times(1)).findCases(query2);
-        verify(trigger1, times(1)).processCase("1");
-        verify(trigger2, times(1)).processCase("2");
+        verify(trigger1, times(1)).processCase(CaseDetails.builder().id(1L).build());
+        verify(trigger2, times(1)).processCase(CaseDetails.builder().id(2L).build());
     }
 
     @Test
@@ -82,7 +82,7 @@ class NightlyRunnerAppTest {
         // Then
         verify(trigger1, times(1)).query();
         verify(nightlyRunner, times(1)).findCases(query);
-        verify(trigger1, never()).processCase(anyString());
+        verify(trigger1, never()).processCase(any());
     }
 
     @Test
@@ -113,7 +113,8 @@ class NightlyRunnerAppTest {
         String query = "query";
         when(trigger1.query()).thenReturn(query);
         when(nightlyRunner.findCases(query)).thenReturn(List.of(CaseDetails.builder().id(1L).build()));
-        doThrow(new RuntimeException("Test exception")).when(trigger1).processCase("1");
+        doThrow(new RuntimeException("Test exception")).when(trigger1).processCase(CaseDetails.builder().id(1L)
+                                                                                       .build());
 
         // When/Then
         assertDoesNotThrow(() -> nightlyRunnerApp.run());

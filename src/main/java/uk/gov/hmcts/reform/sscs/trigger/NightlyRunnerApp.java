@@ -45,8 +45,7 @@ public class NightlyRunnerApp implements CommandLineRunner {
                 log.info("Running trigger: {}", trigger.getClass().getName());
                 nightlyRunner
                     .findCases(trigger.query())
-                    .forEach(caseDetails ->
-                                 trigger.processCase(caseDetails.getId().toString())
+                    .forEach(trigger::processCase
                     );
             } catch (Exception e) {
                 log.error("Failed to execute trigger {}", getClass().getName());

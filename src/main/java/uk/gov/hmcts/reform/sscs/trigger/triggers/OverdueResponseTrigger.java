@@ -3,7 +3,10 @@ package uk.gov.hmcts.reform.sscs.trigger.triggers;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CommunicationRequest;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
@@ -50,12 +53,20 @@ public class OverdueResponseTrigger implements Trigger {
     }
 
     @Override
-    public void processCase(String caseId) {
+    public void processCase(CaseDetails caseDetails) {
+        String caseId = caseDetails.getId().toString();
         log.info("Processing case {}", caseId);
         if (isValid(nightlyRunner.getCaseEvents(caseId))) {
-            nightlyRunner.processCase(caseId, event());
+            List<CommunicationRequest> ftaCommunications =
+                (List<CommunicationRequest>) caseDetails.getData().get("ftaCommunications");
+            List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
+                .filter(request -> request.getValue().getRequestReply() == null
+                && request.getValue().getTaskCreatedForRequest() != YesNo.YES)
+                .toList();
+            for (CommunicationRequest request : overdueCommunications) {
+                nightlyRunner.processCase(caseId, event());
+            }
         }
-
     }
 
     @Override
