@@ -24,7 +24,6 @@ public class OverdueResponseTrigger implements Trigger {
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
     protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final LocalDate triggerDate;
 
     private final String eventName;
@@ -65,11 +64,17 @@ public class OverdueResponseTrigger implements Trigger {
 
             var caseData = convertToSscsCaseData(caseDetails.getData());
             List<CommunicationRequest> ftaCommunications = caseData.getCommunicationFields().getFtaCommunications();
-            log.info(ftaCommunications);
+
+            LocalDate overdueDate = LocalDate.parse(getRequestDate(queryDate, responseDelay));
+
             List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
                 .filter(request -> request.getValue().getRequestReply() == null
-                    && request.getValue().getTaskCreatedForRequest() != YesNo.YES)
+                    && request.getValue().getTaskCreatedForRequest() != YesNo.YES
+                    && (request.getValue().getRequestDateTime().toLocalDate().isEqual(overdueDate)
+                    || request.getValue().getRequestDateTime().toLocalDate().isBefore(overdueDate)))
                 .toList();
+
+            log.info(overdueCommunications);
 
             for (CommunicationRequest request : overdueCommunications) {
                 nightlyRunner.processCase(caseId, event());
@@ -117,10 +122,9 @@ public class OverdueResponseTrigger implements Trigger {
 
     private String getRequestDate(LocalDate queryDate, Integer responseDelay) {
         try {
-            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay)
-                .atStartOfDay().toString();
+            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay).toString();
         } catch (IOException e) {
-            return queryDate.minusDays(responseDelay).atStartOfDay().toString();
+            return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
         }
     }
 
