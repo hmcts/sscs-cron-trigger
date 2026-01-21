@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
+import groovy.util.logging.Slf4j;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
+@Slf4j
 class OverdueFtaResponseIncompleteAppealTriggerTest {
 
     private Trigger trigger;
@@ -53,7 +55,7 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
             .isEqualTo("reference");
         assertThat(result.query("/_source"))
             .isEqualTo(false);
-        assertThat(result.query("/query/bool/must/0/match/data.ftaCommunications.value.requestDateTime"))
+        assertThat(result.query("/query/bool/must/0/range/data.ftaCommunications.value.requestDateTime/lte"))
             .isEqualTo(dateTimeFormatter.format(overdueDate));
         assertThat(result.query("/query/bool/must/1/match/state"))
             .isEqualTo("incompleteApplication");
