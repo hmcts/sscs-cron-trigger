@@ -1,13 +1,14 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CommunicationRequest;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 public class OverdueResponseTrigger implements Trigger {
@@ -61,8 +63,8 @@ public class OverdueResponseTrigger implements Trigger {
         log.info("Processing case {}", caseId);
         if (isValid(nightlyRunner.getCaseEvents(caseId))) {
 
-            List<CommunicationRequest> ftaCommunications = toList(caseDetails.getData().get("ftaCommunications"),
-                                                                  new TypeReference<>() {});
+            var caseData = convertToSscsCaseData(caseDetails.getData());
+            List<CommunicationRequest> ftaCommunications = caseData.getCommunicationFields().getFtaCommunications();
             log.info(ftaCommunications);
             List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
                 .filter(request -> request.getValue().getRequestReply() == null
@@ -119,10 +121,9 @@ public class OverdueResponseTrigger implements Trigger {
         }
     }
 
-    private <T> List<T> toList(Object obj, TypeReference<List<T>> typeReference) {
-        if (obj == null) {
-            return List.of();
-        }
-        return OBJECT_MAPPER.convertValue(obj, typeReference);
+    protected SscsCaseData convertToSscsCaseData(Map<String, Object> caseData) {
+        var mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper.convertValue(caseData, SscsCaseData.class);
     }
 }
