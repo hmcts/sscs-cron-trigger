@@ -73,6 +73,7 @@ public class OverdueResponseTrigger implements Trigger {
 
             for (CommunicationRequest request : overdueCommunications) {
                 nightlyRunner.processCase(caseId, event());
+
             }
         }
     }
@@ -84,8 +85,9 @@ public class OverdueResponseTrigger implements Trigger {
                 .put("bool", new JSONObject()
                     .put("must", new JSONArray()
                         .put(new JSONObject()
-                                 .put("match", new JSONObject()
-                                     .put(dateField, getRequestDate(queryDate, responseDelay))))
+                                 .put("range", new JSONObject()
+                                     .put(dateField, new JSONObject()
+                                         .put("lte", getRequestDate(queryDate, responseDelay)))))
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
                                      .put("state", caseState))))
