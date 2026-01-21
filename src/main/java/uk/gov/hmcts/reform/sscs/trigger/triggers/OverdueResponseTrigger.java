@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,6 +22,7 @@ public class OverdueResponseTrigger implements Trigger {
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
     protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final LocalDate triggerDate;
 
     private final String eventName;
@@ -57,12 +60,15 @@ public class OverdueResponseTrigger implements Trigger {
         String caseId = caseDetails.getId().toString();
         log.info("Processing case {}", caseId);
         if (isValid(nightlyRunner.getCaseEvents(caseId))) {
-            List<CommunicationRequest> ftaCommunications =
-                (List<CommunicationRequest>) caseDetails.getData().get("ftaCommunications");
+
+            List<CommunicationRequest> ftaCommunications = toList(caseDetails.getData().get("ftaCommunications"),
+                                                                  new TypeReference<>() {});
+            log.info(ftaCommunications);
             List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
                 .filter(request -> request.getValue().getRequestReply() == null
-                && request.getValue().getTaskCreatedForRequest() != YesNo.YES)
+                    && request.getValue().getTaskCreatedForRequest() != YesNo.YES)
                 .toList();
+
             for (CommunicationRequest request : overdueCommunications) {
                 nightlyRunner.processCase(caseId, event());
             }
@@ -111,5 +117,12 @@ public class OverdueResponseTrigger implements Trigger {
         } catch (IOException e) {
             return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
         }
+    }
+
+    private <T> List<T> toList(Object obj, TypeReference<List<T>> typeReference) {
+        if (obj == null) {
+            return List.of();
+        }
+        return OBJECT_MAPPER.convertValue(obj, typeReference);
     }
 }
