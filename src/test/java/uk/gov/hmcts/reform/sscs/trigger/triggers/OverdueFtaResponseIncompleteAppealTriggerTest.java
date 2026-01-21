@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
-import groovy.util.logging.Slf4j;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,10 +19,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.trigger.triggers.OverdueResponseTrigger.DATE_FORMAT;
 
 @ExtendWith(MockitoExtension.class)
-@Slf4j
 class OverdueFtaResponseIncompleteAppealTriggerTest {
 
     private Trigger trigger;

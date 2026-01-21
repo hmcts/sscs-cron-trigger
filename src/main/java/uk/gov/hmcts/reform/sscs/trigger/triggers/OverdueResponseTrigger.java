@@ -117,7 +117,8 @@ public class OverdueResponseTrigger implements Trigger {
 
     private String getRequestDate(LocalDate queryDate, Integer responseDelay) {
         try {
-            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay).atStartOfDay().toString();
+            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay)
+                .atStartOfDay().toString();
         } catch (IOException e) {
             return queryDate.minusDays(responseDelay).atStartOfDay().toString();
         }
