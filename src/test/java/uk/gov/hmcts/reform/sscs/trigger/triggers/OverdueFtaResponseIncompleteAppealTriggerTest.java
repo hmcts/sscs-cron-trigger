@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.trigger.triggers.OverdueResponseTrigger.DATE_FORMAT;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -57,6 +58,8 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
             .isEqualTo(false);
         assertThat(result.query("/query/bool/must/0/range/data.ftaCommunications.value.requestDateTime/lte"))
             .isEqualTo(dateTimeFormatter.format(overdueDate));
+        assertThat(result.query("/query/bool/must/0/range/data.ftaCommunications.value.requestDateTime/format"))
+            .isEqualTo(DATE_FORMAT);
         assertThat(result.query("/query/bool/must/1/match/state"))
             .isEqualTo("incompleteApplication");
         assertThat(result.query("/query/bool/must_not/0/exists/field"))
