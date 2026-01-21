@@ -87,8 +87,7 @@ public class OverdueResponseTrigger implements Trigger {
                         .put(new JSONObject()
                                  .put("range", new JSONObject()
                                      .put(dateField, new JSONObject()
-                                         .put("lte", getRequestDate(queryDate, responseDelay))
-                                         .put("format", DATE_FORMAT))))
+                                         .put("lte", getRequestDate(queryDate, responseDelay)))))
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
                                      .put("state", caseState))))
@@ -118,9 +117,9 @@ public class OverdueResponseTrigger implements Trigger {
 
     private String getRequestDate(LocalDate queryDate, Integer responseDelay) {
         try {
-            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay).toString();
+            return businessDaysCalculatorService.getBusinessDayInPast(queryDate, responseDelay).atStartOfDay().toString();
         } catch (IOException e) {
-            return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
+            return queryDate.minusDays(responseDelay).atStartOfDay().toString();
         }
     }
 
