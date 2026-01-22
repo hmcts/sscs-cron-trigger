@@ -53,7 +53,7 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
             .isEqualTo("reference");
         assertThat(result.query("/_source"))
             .isEqualTo(false);
-        assertThat(result.query("/query/bool/must/0/match/data.ftaCommunications.value.requestDateTime"))
+        assertThat(result.query("/query/bool/must/0/range/data.ftaCommunications.value.requestDateTime/lte"))
             .isEqualTo(dateTimeFormatter.format(overdueDate));
         assertThat(result.query("/query/bool/must/1/match/state"))
             .isEqualTo("incompleteApplication");
