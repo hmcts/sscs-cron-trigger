@@ -83,8 +83,7 @@ public class OverdueResponseTrigger implements Trigger {
         }
     }
 
-    @Override
-    public String query() {
+    public String query2() {
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
@@ -113,32 +112,29 @@ public class OverdueResponseTrigger implements Trigger {
             .toString();
     }
 
-    public String query2() {
+    @Override
+    public String query() {
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
                     .put("must", new JSONArray()
                         .put(new JSONObject()
-                                 .put("nested", new JSONObject()
-                                     .put("path", "data.ftaCommunications")
-                                     .put("query", new JSONObject()
-                                         .put("bool", new JSONObject()
-                                             .put("must", new JSONArray()
-                                                 .put(new JSONObject()
-                                                          .put("range", new JSONObject()
-                                                              .put(dateField, new JSONObject()
-                                                                  .put("lte", getRequestDate(queryDate, responseDelay)
-                                                                  )))))
-                                             .put("must_not", new JSONArray()
-                                                 .put(new JSONObject()
-                                                          .put("exists", new JSONObject()
-                                                              .put("field", "value.requestReply")))
-                                                 .put(new JSONObject()
-                                                          .put("match", new JSONObject()
-                                                              .put("value.taskCreatedForRequest", "Yes"))))
-                                         )
-                                     )
-                                 )
+                            .put("query", new JSONObject()
+                                .put("bool", new JSONObject()
+                                    .put("must", new JSONArray()
+                                        .put(new JSONObject()
+                                            .put("range", new JSONObject()
+                                                .put(dateField, new JSONObject()
+                                                    .put("lte", getRequestDate(queryDate, responseDelay))))))
+                                    .put("must_not", new JSONArray()
+                                        .put(new JSONObject()
+                                            .put("exists", new JSONObject()
+                                                .put("field", "data.ftaCommunications.value.requestReply")))
+                                        .put(new JSONObject()
+                                            .put("match", new JSONObject()
+                                                .put("data.ftaCommunications.value.taskCreatedForRequest", "Yes"))))
+                                )
+                            )
                         )
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
