@@ -132,6 +132,7 @@ public class OverdueResponseTrigger implements Trigger {
             .put("size", querySize)
             .toString();
     }
+
     public String queryShardError() {
         String nestedPath = "data.ftaCommunications";
         String nestedDateField = nestedPath + ".value.requestDateTime";
