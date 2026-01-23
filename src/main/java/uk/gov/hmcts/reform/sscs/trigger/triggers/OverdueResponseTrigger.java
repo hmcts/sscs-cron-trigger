@@ -78,13 +78,33 @@ public class OverdueResponseTrigger implements Trigger {
 
             for (CommunicationRequest request : overdueCommunications) {
                 nightlyRunner.processCase(caseId, event());
-
             }
         }
     }
 
     @Override
     public String query() {
+        return new JSONObject()
+            .put("query", new JSONObject()
+                .put("nested", new JSONObject()
+                    .put("path", "data.ftaCommunications")
+                    .put("query", new JSONObject()
+                        .put("must_not", new JSONArray()
+                            .put(new JSONObject()
+                                     .put("exists", new JSONObject()
+                                         .put("field","data.ftaCommunications.value.requestReply"))))
+                    )
+                )
+            )
+            .put("fields", new JSONArray().put("reference"))
+            .put("_source", false)
+            .put("size", 10_000)
+            .toString();
+
+    }
+
+
+    public String queryUgh() {
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
