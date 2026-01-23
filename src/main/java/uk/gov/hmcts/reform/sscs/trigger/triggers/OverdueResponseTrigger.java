@@ -110,13 +110,15 @@ public class OverdueResponseTrigger implements Trigger {
                 .put("must_not", new JSONArray().put(existsRequestReply).put(matchTaskYes)));
 
         JSONObject nestedQuery = new JSONObject()
-            .put("query", nestedBool);
+            .put("nested", new JSONObject()
+                .put("path", nestedPath)
+                .put("query", nestedBool));
 
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
                     .put("must", new JSONArray()
-                        .put(nestedBool)
+                        .put(nestedQuery)
                         .put(new JSONObject().put("match", new JSONObject().put("state", caseState)))
                     )
                 )
