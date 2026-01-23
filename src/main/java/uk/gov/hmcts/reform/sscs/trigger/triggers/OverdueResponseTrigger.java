@@ -86,7 +86,7 @@ public class OverdueResponseTrigger implements Trigger {
     @Override
     public String query() {
         String nestedPath = "data.ftaCommunications";
-        String nestedDateField = ".value.requestDateTime";
+        String nestedDateField = nestedPath + ".value.requestDateTime";
         String requestReplyField = nestedPath + ".value.requestReply";
         String taskCreatedField = nestedPath + ".value.taskCreatedForRequest";
 
@@ -110,9 +110,7 @@ public class OverdueResponseTrigger implements Trigger {
                 .put("must_not", new JSONArray().put(existsRequestReply).put(matchTaskYes)));
 
         JSONObject nestedQuery = new JSONObject()
-            .put("nested", new JSONObject()
-                .put("path", nestedPath)
-                .put("query", nestedBool));
+            .put("query", nestedBool);
 
         return new JSONObject()
             .put("query", new JSONObject()
