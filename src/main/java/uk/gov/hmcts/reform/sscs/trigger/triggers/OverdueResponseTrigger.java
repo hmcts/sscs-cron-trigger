@@ -110,9 +110,9 @@ public class OverdueResponseTrigger implements Trigger {
             .put("_source", false)
             .put("size", querySize)
             .toString();
-        }
+    }
 
-    public String Oldquery() {
+    public String oldQuery() {
         String nestedPath = "data.ftaCommunications";
         String nestedDateField = nestedPath + ".value.requestDateTime";
         String requestReplyField = nestedPath + ".value.requestReply";
