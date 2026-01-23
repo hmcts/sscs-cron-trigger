@@ -116,7 +116,7 @@ public class OverdueResponseTrigger implements Trigger {
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
                     .put("must", new JSONArray()
-                        .put(nestedQuery)
+                        .put(nestedBool)
                         .put(new JSONObject().put("match", new JSONObject().put("state", caseState)))
                     )
                 )
