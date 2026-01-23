@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CommunicationRequest;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
@@ -69,7 +68,7 @@ public class OverdueResponseTrigger implements Trigger {
 
             List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
                 .filter(request -> request.getValue().getRequestReply() == null
-                    && request.getValue().getTaskCreatedForRequest() != YesNo.YES
+                    && ("No").equals(request.getValue().getTaskCreatedForRequest())
                     && (request.getValue().getRequestDateTime().toLocalDate().isEqual(overdueDate)
                     || request.getValue().getRequestDateTime().toLocalDate().isBefore(overdueDate)))
                 .toList();
@@ -81,26 +80,6 @@ public class OverdueResponseTrigger implements Trigger {
             }
         }
     }
-
-    public String queryNested() {
-        return new JSONObject()
-            .put("query", new JSONObject()
-                .put("nested", new JSONObject()
-                    .put("path", "data.ftaCommunications")
-                    .put("query", new JSONObject()
-                        .put("term", new JSONObject()
-                            .put("data.ftaCommunications.value.taskCreatedForRequest", "Yes")
-                        )
-                    )
-                )
-            )
-            .put("fields", new JSONArray().put("reference"))
-            .put("_source", false)
-            .put("size", 10_000)
-            .toString();
-
-    }
-
 
     @Override
     public String query() {
@@ -128,164 +107,6 @@ public class OverdueResponseTrigger implements Trigger {
             .toString();
     }
 
-    public String oldQuery() {
-        String nestedPath = "data.ftaCommunications";
-        String nestedDateField = nestedPath + ".value.requestDateTime";
-        String requestReplyField = nestedPath + ".value.requestReply";
-        String taskCreatedField = nestedPath + ".value.taskCreatedForRequest";
-
-        return new JSONObject()
-            .put("query", new JSONObject()
-                .put("bool", new JSONObject()
-                    .put("must", new JSONArray()
-                        .put(new JSONObject()
-                            .put("nested", new JSONObject()
-                                .put("path", nestedPath)
-                                .put("query", new JSONObject()
-                                    .put("bool", new JSONObject()
-                                        .put("must", new JSONArray()
-                                            .put(new JSONObject()
-                                                .put("range", new JSONObject()
-                                                    .put(nestedDateField, new JSONObject()
-                                                        .put("lte", getRequestDate(queryDate, responseDelay)))
-                                                )
-                                            )
-                                        )
-                                        .put("must_not", new JSONArray()
-                                            .put(new JSONObject()
-                                                .put("exists", new JSONObject()
-                                                    .put("field", requestReplyField))
-                                            )
-                                            .put(new JSONObject()
-                                                .put("match", new JSONObject()
-                                                    .put(taskCreatedField, "Yes"))
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                        .put(new JSONObject()
-                            .put("match", new JSONObject()
-                                .put("state", caseState)))
-                    )
-                )
-            )
-            .put("fields", new JSONArray().put("reference"))
-            .put("_source", false)
-            .put("size", querySize)
-            .toString();
-    }
-
-    public String query2275() {
-        return new JSONObject()
-            .put("query", new JSONObject()
-                .put("bool", new JSONObject()
-                    .put("must", new JSONArray()
-                        .put(new JSONObject()
-                                 .put("range", new JSONObject()
-                                     .put(dateField, new JSONObject()
-                                         .put("lte", getRequestDate(queryDate, responseDelay)))))
-                        .put(new JSONObject()
-                                 .put("match", new JSONObject()
-                                     .put("state", caseState))))
-                    .put("must_not", new JSONArray()
-                        .put(new JSONObject()
-                                 .put("exists", new JSONObject()
-                                     .put("field","data.ftaCommunications.value.requestReply")))
-                        .put(new JSONObject()
-                                 .put("match", new JSONObject()
-                                     .put("data.ftaCommunications.value.taskCreatedForRequest","Yes"))))))
-            .put("fields", new JSONArray()
-                .put("reference"))
-            .put("_source", false)
-            .put("size", querySize)
-            .toString();
-    }
-
-
-    public String queryShardError() {
-        String nestedPath = "data.ftaCommunications";
-        String nestedDateField = nestedPath + ".value.requestDateTime";
-        String requestReplyField = nestedPath + ".value.requestReply";
-        String taskCreatedField = nestedPath + ".value.taskCreatedForRequest";
-
-        JSONObject rangeObj = new JSONObject()
-            .put("range", new JSONObject()
-                .put(nestedDateField, new JSONObject()
-                    .put("lte", getRequestDate(queryDate, responseDelay))
-                    .put("format", DATE_FORMAT)));
-
-        JSONObject existsRequestReply = new JSONObject()
-            .put("exists", new JSONObject()
-                .put("field", requestReplyField));
-
-        JSONObject matchTaskYes = new JSONObject()
-            .put("match", new JSONObject()
-                .put(taskCreatedField, "Yes"));
-
-        JSONObject nestedBool = new JSONObject()
-            .put("bool", new JSONObject()
-                .put("must", new JSONArray().put(rangeObj))
-                .put("must_not", new JSONArray().put(existsRequestReply).put(matchTaskYes)));
-
-        JSONObject nestedQuery = new JSONObject()
-            .put("nested", new JSONObject()
-                .put("path", nestedPath)
-                .put("query", nestedBool));
-
-        return new JSONObject()
-            .put("query", new JSONObject()
-                .put("bool", new JSONObject()
-                    .put("must", new JSONArray()
-                        .put(nestedQuery)
-                        .put(new JSONObject().put("match", new JSONObject().put("state", caseState)))
-                    )
-                )
-            )
-            .put("fields", new JSONArray().put("reference"))
-            .put("_source", false)
-            .put("size", querySize)
-            .toString();
-    }
-
-    public String queryOneTaskOnly() {
-        String nestedPath = "data.ftaCommunications";
-        String nestedDateField = nestedPath + ".value.requestDateTime";
-        String requestReplyField = nestedPath + ".value.requestReply";
-        String taskCreatedField = nestedPath + ".value.taskCreatedForRequest";
-        JSONObject rangeObj = new JSONObject()
-            .put("range", new JSONObject()
-                .put(nestedDateField, new JSONObject()
-                    .put("lte", getRequestDate(queryDate, responseDelay))
-                    .put("format", DATE_FORMAT)));
-        JSONObject existsRequestReply = new JSONObject()
-            .put("exists", new JSONObject()
-                .put("field", requestReplyField));
-        JSONObject matchTaskYes = new JSONObject()
-            .put("match", new JSONObject()
-                .put(taskCreatedField, "Yes"));
-        JSONObject nestedBool = new JSONObject()
-            .put("bool", new JSONObject()
-                .put("must", new JSONArray().put(rangeObj))
-                .put("must_not", new JSONArray().put(existsRequestReply).put(matchTaskYes)));
-        JSONObject nestedQuery = new JSONObject()
-            .put("query", nestedBool);
-        return new JSONObject()
-            .put("query", new JSONObject()
-                .put("bool", new JSONObject()
-                    .put("must", new JSONArray()
-                        .put(nestedQuery)
-                        .put(nestedBool)
-                        .put(new JSONObject().put("match", new JSONObject().put("state", caseState)))
-                    )
-                )
-            )
-            .put("fields", new JSONArray().put("reference"))
-            .put("_source", false)
-            .put("size", querySize)
-            .toString();
-    }
 
     @Override
     public boolean isValid(List<CaseEventDetail> events) {
