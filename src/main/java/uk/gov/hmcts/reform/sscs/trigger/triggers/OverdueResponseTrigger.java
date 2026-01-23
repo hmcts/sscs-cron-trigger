@@ -83,37 +83,53 @@ public class OverdueResponseTrigger implements Trigger {
         }
     }
 
-    public String query2() {
+    @Override
+    public String query() {
+        String nestedPath = "data.ftaCommunications";
+        String nestedDateField = ".value.requestDateTime";
+        String requestReplyField = nestedPath + ".value.requestReply";
+        String taskCreatedField = nestedPath + ".value.taskCreatedForRequest";
+
+        JSONObject rangeObj = new JSONObject()
+            .put("range", new JSONObject()
+                .put(nestedDateField, new JSONObject()
+                    .put("lte", getRequestDate(queryDate, responseDelay))
+                    .put("format", DATE_FORMAT)));
+
+        JSONObject existsRequestReply = new JSONObject()
+            .put("exists", new JSONObject()
+                .put("field", requestReplyField));
+
+        JSONObject matchTaskYes = new JSONObject()
+            .put("match", new JSONObject()
+                .put(taskCreatedField, "Yes"));
+
+        JSONObject nestedBool = new JSONObject()
+            .put("bool", new JSONObject()
+                .put("must", new JSONArray().put(rangeObj))
+                .put("must_not", new JSONArray().put(existsRequestReply).put(matchTaskYes)));
+
+        JSONObject nestedQuery = new JSONObject()
+            .put("nested", new JSONObject()
+                .put("path", nestedPath)
+                .put("query", nestedBool));
+
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
                     .put("must", new JSONArray()
-                         .put(new JSONObject()
-                                  .put("range", new JSONObject()
-                                      .put(dateField, new JSONObject()
-                                          .put("lte", getRequestDate(queryDate, responseDelay))))
-                                  .put("must_not", new JSONArray()
-                                      .put(new JSONObject()
-                                               .put("exists", new JSONObject()
-                                                   .put("field","data.ftaCommunications.value.requestReply")))
-                                      .put(new JSONObject()
-                                               .put("match", new JSONObject()
-                                                   .put("data.ftaCommunications.value.taskCreatedForRequest","Yes")))))
-                         .put(new JSONObject()
-                                  .put("match", new JSONObject()
-                                      .put("state", caseState)))
+                        .put(nestedQuery)
+                        .put(new JSONObject().put("match", new JSONObject().put("state", caseState)))
                     )
                 )
             )
-            .put("fields", new JSONArray()
-                .put("reference"))
+            .put("fields", new JSONArray().put("reference"))
             .put("_source", false)
             .put("size", querySize)
             .toString();
     }
 
-    @Override
-    public String query() {
+    public String query2() {
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
@@ -128,11 +144,11 @@ public class OverdueResponseTrigger implements Trigger {
                         .put(new JSONObject()
                             .put("must_not", new JSONArray()
                                 .put(new JSONObject()
-                                         .put("exists", new JSONObject()
-                                             .put("field","data.ftaCommunications.value.requestReply")))
+                                    .put("exists", new JSONObject()
+                                        .put("field","data.ftaCommunications.value.requestReply")))
                                 .put(new JSONObject()
-                                         .put("match", new JSONObject()
-                                             .put("data.ftaCommunications.value.taskCreatedForRequest","Yes"))))
+                                    .put("match", new JSONObject()
+                                        .put("data.ftaCommunications.value.taskCreatedForRequest","Yes"))))
                         )
                     )
                 )
