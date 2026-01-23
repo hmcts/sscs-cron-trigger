@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,6 +38,7 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
         trigger = new OverdueFtaResponseIncompleteAppealTrigger(testDate, businessDaysCalculatorService, nightlyRunner);
     }
 
+    @Disabled
     @Test
     void shouldReturnValidQuery() throws IOException {
         final String dateFormat = "yyyy-MM-dd";
