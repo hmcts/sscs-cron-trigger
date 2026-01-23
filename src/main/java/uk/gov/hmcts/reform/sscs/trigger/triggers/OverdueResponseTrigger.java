@@ -82,8 +82,7 @@ public class OverdueResponseTrigger implements Trigger {
         }
     }
 
-    @Override
-    public String query() {
+    public String queryNested() {
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("nested", new JSONObject()
@@ -103,7 +102,8 @@ public class OverdueResponseTrigger implements Trigger {
     }
 
 
-    public String queryUgh() {
+    @Override
+    public String query() {
         return new JSONObject()
             .put("query", new JSONObject()
                 .put("bool", new JSONObject()
@@ -117,10 +117,7 @@ public class OverdueResponseTrigger implements Trigger {
                                 .put("state", caseState)))
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
-                                     .put("data.ftaCommunications.value.requestReply","")))
-                        .put(new JSONObject()
-                                 .put("match", new JSONObject()
-                                     .put("data.ftaCommunications.value.taskCreatedForRequest","")))
+                                     .put("data.ftaCommunications.value.taskCreatedForRequest","No")))
                     )
                 )
             )
