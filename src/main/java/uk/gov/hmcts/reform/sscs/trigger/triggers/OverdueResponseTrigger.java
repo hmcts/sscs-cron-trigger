@@ -1,9 +1,14 @@
 package uk.gov.hmcts.reform.sscs.trigger.triggers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CommunicationRequest;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 import uk.gov.hmcts.reform.sscs.utility.calendar.BusinessDaysCalculatorService;
 
@@ -11,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 public class OverdueResponseTrigger implements Trigger {
@@ -50,10 +56,27 @@ public class OverdueResponseTrigger implements Trigger {
     }
 
     @Override
-    public void processCase(String caseId) {
+    public void processCase(CaseDetails caseDetails) {
+        String caseId = caseDetails.getId().toString();
         log.info("Processing case {}", caseId);
         if (isValid(nightlyRunner.getCaseEvents(caseId))) {
-            nightlyRunner.processCase(caseId, event());
+            var caseData = convertToSscsCaseData(caseDetails.getData());
+            List<CommunicationRequest> ftaCommunications = caseData.getCommunicationFields().getFtaCommunications();
+
+            LocalDate overdueDate = LocalDate.parse(getRequestDate(queryDate, responseDelay));
+
+            List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
+                .filter(request -> request.getValue().getRequestReply() == null
+                    && ("No").equals(request.getValue().getTaskCreatedForRequest())
+                    && (request.getValue().getRequestDateTime().toLocalDate().isEqual(overdueDate)
+                    || request.getValue().getRequestDateTime().toLocalDate().isBefore(overdueDate)))
+                .toList();
+
+            log.info(overdueCommunications);
+
+            for (CommunicationRequest request : overdueCommunications) {
+                nightlyRunner.processCase(caseId, event());
+            }
         }
 
     }
@@ -70,14 +93,13 @@ public class OverdueResponseTrigger implements Trigger {
                                          .put("lte", getRequestDate(queryDate, responseDelay)))))
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
-                                     .put("state", caseState))))
-                    .put("must_not", new JSONArray()
-                        .put(new JSONObject()
-                                 .put("exists", new JSONObject()
-                                     .put("field","data.ftaCommunications.value.requestReply")))
+                                     .put("state", caseState)))
                         .put(new JSONObject()
                                  .put("match", new JSONObject()
-                                     .put("data.ftaCommunications.value.taskCreatedForRequest","Yes"))))))
+                                     .put("data.ftaCommunications.value.taskCreatedForRequest","No")))
+                    )
+                )
+            )
             .put("fields", new JSONArray()
                 .put("reference"))
             .put("_source", false)
@@ -101,5 +123,11 @@ public class OverdueResponseTrigger implements Trigger {
         } catch (IOException e) {
             return queryDate.minusDays(responseDelay).format(DATE_FORMATTER);
         }
+    }
+
+    protected SscsCaseData convertToSscsCaseData(Map<String, Object> caseData) {
+        var mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper.convertValue(caseData, SscsCaseData.class);
     }
 }

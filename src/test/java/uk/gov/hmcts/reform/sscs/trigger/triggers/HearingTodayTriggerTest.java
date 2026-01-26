@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.CaseEventDetail;
 import uk.gov.hmcts.reform.sscs.trigger.NightlyRunner;
 
@@ -85,7 +86,7 @@ class HearingTodayTriggerTest {
         when(nightlyRunner.getCaseEvents(CASE_ID)).thenReturn(events);
 
         // When
-        trigger.processCase(CASE_ID);
+        trigger.processCase(CaseDetails.builder().id(Long.valueOf(CASE_ID)).build());
 
         // Then
         verify(nightlyRunner, times(1)).getCaseEvents(CASE_ID);
@@ -101,7 +102,7 @@ class HearingTodayTriggerTest {
         when(nightlyRunner.getCaseEvents(CASE_ID)).thenReturn(events);
 
         // When
-        trigger.processCase(CASE_ID);
+        trigger.processCase(CaseDetails.builder().id(Long.valueOf(CASE_ID)).build());
 
         // Then
         verify(nightlyRunner, times(1)).getCaseEvents(CASE_ID);

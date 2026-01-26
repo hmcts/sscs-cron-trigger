@@ -57,10 +57,8 @@ class OverdueFtaResponseIncompleteAppealTriggerTest {
             .isEqualTo(dateTimeFormatter.format(overdueDate));
         assertThat(result.query("/query/bool/must/1/match/state"))
             .isEqualTo("incompleteApplication");
-        assertThat(result.query("/query/bool/must_not/0/exists/field"))
-            .isEqualTo("data.ftaCommunications.value.requestReply");
-        assertThat(result.query("/query/bool/must_not/1/match/data.ftaCommunications.value.taskCreatedForRequest"))
-            .isEqualTo("Yes");
+        assertThat(result.query("/query/bool/must/2/match/data.ftaCommunications.value.taskCreatedForRequest"))
+            .isEqualTo("No");
     }
 
     @Test
