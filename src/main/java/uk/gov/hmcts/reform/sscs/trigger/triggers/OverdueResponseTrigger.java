@@ -18,6 +18,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.nonNull;
+
 @Log4j2
 public class OverdueResponseTrigger implements Trigger {
 
@@ -59,12 +61,16 @@ public class OverdueResponseTrigger implements Trigger {
     public void processCase(CaseDetails caseDetails) {
         String caseId = caseDetails.getId().toString();
         log.info("Processing case {}", caseId);
-        if (isValid(nightlyRunner.getCaseEvents(caseId))) {
-            var caseData = convertToSscsCaseData(caseDetails.getData());
-            List<CommunicationRequest> ftaCommunications = caseData.getCommunicationFields().getFtaCommunications();
 
-            LocalDate overdueDate = LocalDate.parse(getRequestDate(queryDate, responseDelay));
+        var caseData = convertToSscsCaseData(caseDetails.getData());
+        List<CommunicationRequest> ftaCommunications = caseData.getCommunicationFields().getFtaCommunications();
 
+        LocalDate overdueDate = LocalDate.parse(getRequestDate(queryDate, responseDelay));
+
+        log.info("Overdue date calculated as: {}", overdueDate);
+        log.info("Non null overdue fta communications for case {}: {}", caseId, nonNull(ftaCommunications));
+
+        if (nonNull(ftaCommunications)) {
             List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
                 .filter(request -> request.getValue().getRequestReply() == null
                     && ("No").equals(request.getValue().getTaskCreatedForRequest())
@@ -72,13 +78,12 @@ public class OverdueResponseTrigger implements Trigger {
                     || request.getValue().getRequestDateTime().toLocalDate().isBefore(overdueDate)))
                 .toList();
 
-            log.info(overdueCommunications);
+            log.info("Overdue communications list: {}", overdueCommunications);
 
             for (CommunicationRequest request : overdueCommunications) {
                 nightlyRunner.processCase(caseId, event());
             }
         }
-
     }
 
     @Override
@@ -125,7 +130,7 @@ public class OverdueResponseTrigger implements Trigger {
         }
     }
 
-    protected SscsCaseData convertToSscsCaseData(Map<String, Object> caseData) {
+    protected static SscsCaseData convertToSscsCaseData(Map<String, Object> caseData) {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         return mapper.convertValue(caseData, SscsCaseData.class);
