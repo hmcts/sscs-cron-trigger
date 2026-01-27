@@ -74,8 +74,7 @@ public class OverdueResponseTrigger implements Trigger {
             List<CommunicationRequest> overdueCommunications = ftaCommunications.stream()
                 .filter(request -> request.getValue().getRequestReply() == null
                     && ("No").equals(request.getValue().getTaskCreatedForRequest())
-                    && (request.getValue().getRequestDateTime().toLocalDate().isEqual(overdueDate)
-                    || request.getValue().getRequestDateTime().toLocalDate().isBefore(overdueDate)))
+                    && !request.getValue().getRequestDateTime().toLocalDate().isAfter(overdueDate))
                 .toList();
 
             log.info("Overdue communications list: {}", overdueCommunications);
