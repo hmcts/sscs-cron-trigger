@@ -111,6 +111,7 @@ public class OverdueResponseTrigger implements Trigger {
             .toString();
     }
 
+
     @Override
     public boolean isValid(List<CaseEventDetail> events) {
         return true;
