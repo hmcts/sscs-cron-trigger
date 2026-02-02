@@ -216,7 +216,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.2.0'
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '5af10b8'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '94f6400'
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.5'
 
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
