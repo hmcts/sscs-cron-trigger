@@ -20,6 +20,10 @@ job:
             alias: IDAM_S2S_AUTH_MICROSERVICE
           - name: app-insights-connection-string
             alias: app-insights-connection-string
+          - name: idam-sscs-wa-system-user
+            alias: IDAM_SSCS_WA_SYSTEM_USER
+          - name: idam-sscs-wa-system-password
+            alias: IDAM_SSCS_WA_SYSTEM_PASSWORD
   schedule: "0 1 * * *"
   global:
     jobKind: CronJob

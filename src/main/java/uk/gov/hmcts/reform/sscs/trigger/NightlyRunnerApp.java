@@ -20,7 +20,8 @@ import static java.util.Objects.requireNonNull;
 @ComponentScan(basePackages = {
     "uk.gov.hmcts.reform.idam.client",
     "uk.gov.hmcts.reform.ccd.client",
-    "uk.gov.hmcts.reform.sscs"})
+    "uk.gov.hmcts.reform.sscs.trigger",
+    "uk.gov.hmcts.reform.sscs.utility.calendar"})
 @EnableFeignClients(clients = { IdamApi.class })
 public class NightlyRunnerApp implements CommandLineRunner {
 
@@ -41,11 +42,10 @@ public class NightlyRunnerApp implements CommandLineRunner {
     public void run(String... args) {
         triggers.forEach(trigger -> {
             try {
-                log.info("Running trigger: {}", getClass().getName());
+                log.info("Running trigger: {}", trigger.getClass().getName());
                 nightlyRunner
                     .findCases(trigger.query())
-                    .forEach(caseDetails ->
-                                 trigger.processCase(caseDetails.getId().toString())
+                    .forEach(trigger::processCase
                     );
             } catch (Exception e) {
                 log.error("Failed to execute trigger {}", getClass().getName());
