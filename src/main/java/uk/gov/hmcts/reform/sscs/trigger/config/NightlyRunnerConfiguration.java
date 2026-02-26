@@ -18,7 +18,6 @@ public class NightlyRunnerConfiguration {
         return new OkHttpClient();
     }
 
-
     @Bean
     public LocalDate triggerDate(@Value("${trigger.date:#{null}}") String triggerDate) {
         if (StringUtils.isNoneBlank(triggerDate)) {
