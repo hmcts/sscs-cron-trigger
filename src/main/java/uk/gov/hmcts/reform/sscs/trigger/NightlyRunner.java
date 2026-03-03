@@ -38,6 +38,7 @@ public class NightlyRunner {
 
     public List<CaseDetails> findCases(String query) {
         log.debug(query);
+
         try {
             var searchResults = ccdApi.searchCases(userToken, serviceToken, CASE_TYPE, query);
             log.info("Matching cases found {}", searchResults.getTotal());
