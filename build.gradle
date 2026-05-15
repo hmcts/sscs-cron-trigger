@@ -194,7 +194,7 @@ repositories {
 }
 
 ext {
-  log4JVersion = "2.25.4"
+  log4JVersion = "2.26.0"
 }
 
 dependencies {
