@@ -4,5 +4,15 @@
     "local>hmcts/.github:renovate-config",
     "local>hmcts/.github//renovate/automerge-all",
     "github>hmcts/.github//renovate/global"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "org.owasp.dependencycheck",
+        "org.owasp:dependency-check-gradle",
+        "org.owasp:dependency-check-maven"
+      ],
+      "enabled": false
+    }
   ]
 }
