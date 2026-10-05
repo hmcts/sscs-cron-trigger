@@ -8,5 +8,5 @@ maintainers:
   - name: HMCTS SSCS Team
 dependencies:
   - name: job
-    version: 2.2.1
+    version: 2.2.2
     repository: 'oci://hmctsprod.azurecr.io/helm'
